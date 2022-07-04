@@ -1,17 +1,17 @@
 TARGET	= scop
 INC 	= ./include/
 SRCDIR	= ./src/
-SRC		= scop.cpp Model.cpp
+SRC		= scop.cpp Model.cpp utils.cpp
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
 CFLAGS	= -Wall -Wextra --std=c++11 -g # -Werror
 CC		= g++
 
 ${OBJDIR}%.o: ${SRCDIR}%.cpp
-	${CC} ${CFLAGS} -c $< -o $@
+	${CC} ${CFLAGS} -c $< -I ${INC} -o $@
 
 ${TARGET}: ${OBJDIR} ${OBJS} ${INC}
-	${CC} ${CFLAGS} ${OBJS} -I ${INC} -o $@
+	${CC} ${CFLAGS} ${OBJS} -o $@
 
 ${OBJDIR}:
 	mkdir -p ${OBJDIR}

@@ -1,27 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Vertex.hpp                                         :+:      :+:    :+:   */
+/*   utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/04 10:27:21 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/04 10:46:23 by mamartin         ###   ########.fr       */
+/*   Created: 2022/07/04 14:00:42 by mamartin          #+#    #+#             */
+/*   Updated: 2022/07/04 14:34:26 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef _VERTEX_HPP_
-# define _VERTEX_HPP_
+#ifndef _UTILS_HPP_
+# define _UTILS_HPP_
 
-# include "Vector.hpp"
+# include <vector>
+# include <string>
 
-struct Vertex
-{
-	using VectorType = Vector<3, float>;
-
-	VectorType vertex;
-	VectorType texCoordinates;
-	VectorType normal;
-};
+std::vector<std::string> split(const std::string& str, char delim = ' ', bool acceptEmptyLines = false);
 
 #endif
