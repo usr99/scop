@@ -1,0 +1,5 @@
+{
+   ignore_shared_library_leaks
+   Memcheck:Leak
+   obj:*.so*
+}
