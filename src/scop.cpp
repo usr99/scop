@@ -6,11 +6,11 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/05 15:15:43 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/07 13:09:09 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "GL/glew.h"
+// #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
 #include <iostream>
@@ -20,6 +20,8 @@
 
 int main(int ac, char **av)
 {
+	bool error = false;
+
 	try
 	{
 		/* Check argument validity */
@@ -35,15 +37,12 @@ int main(int ac, char **av)
 
 		/* Initialize the library */
 		if (!glfwInit())
-			return -1;
+			throw std::runtime_error("GLFW initialization failed");
 
 		/* Create a windowed mode window and its OpenGL context */
 		window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
 		if (!window)
-		{
-			glfwTerminate();
-			return -1;
-		}
+			throw std::runtime_error("Window creation failed");
 
 		/* Make the window's context current */
 		glfwMakeContextCurrent(window);
@@ -61,15 +60,16 @@ int main(int ac, char **av)
 			glfwPollEvents();
 		}
 
-		Model object(av[1]);
+		// Model object(av[1]);
 	}
 	catch (const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
+		error = true;
 	}
 
 	/* Free GLFW */
     glfwTerminate();
 
-	return 0;
+	return !error ? EXIT_SUCCESS : EXIT_FAILURE;
 }
