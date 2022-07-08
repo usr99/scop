@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/04 14:55:47 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/08 03:27:40 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ class Model
 		/* Utils */
 		std::vector<std::string> _split(const std::string& str, char delim = ' ');
 
-		std::string 			_M_Name;
 		std::vector<VectorType>	_M_Vertices;
 		std::vector<VectorType>	_M_TexCoordinates;
 		std::vector<VectorType>	_M_Normals;

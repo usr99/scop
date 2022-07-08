@@ -2,23 +2,19 @@
 #			GLOBAL VARIABLES DEFINITION			 #
 ##################################################
 
-TARGET	= scop
+TARGET	= libftGraphics.a
 
 CFLAGS	= -Wall -Wextra --std=c++11 -g # -Werror
 CC		= g++
 
 INC 	= -I ./include				\
-			-I ./libs/include		\
-			-I ./ftGraphics/include	\
+			-I ../libs/include		\
 
 SRCDIR	= ./src/
-SRC		= scop.cpp Model.cpp utils.cpp
+SRC		= Shader.cpp debug.cpp
 
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
-
-LIBS	= -L ftGraphics -lftGraphics -L libs -lglfw3 -lGLEW -lGL -lpthread -ldl -lX11
-LIBFT	= ftGraphics/libftGraphics.a
 
 ##################################################
 #				COMPILATION RULES				 #
@@ -27,14 +23,11 @@ LIBFT	= ftGraphics/libftGraphics.a
 ${OBJDIR}%.o: ${SRCDIR}%.cpp
 	${CC} ${CFLAGS} -c $< ${INC} -o $@
 
-${TARGET}: ${OBJDIR} ${OBJS} ${LIBFT}
-	${CC} ${CFLAGS} ${OBJS} -o $@ ${LIBS}
+${TARGET}: ${OBJDIR} ${OBJS}
+	ar -rcs $@ ${OBJS}
 
 ${OBJDIR}:
 	mkdir -p ${OBJDIR}
-
-${LIBFT}:
-	${MAKE} -C ftGraphics
 
 ##################################################
 #  				   USUAL RULES					 #
@@ -44,11 +37,9 @@ all: ${TARGET}
 
 clean:
 	rm -rf ${OBJDIR}
-	${MAKE} clean -C ftGraphics
 
 fclean: clean
 	rm -rf ${TARGET}
-	${MAKE} fclean -C ftGraphics
 
 re: fclean all
 

@@ -1,5 +1,8 @@
 # Compiled Object files
-objs/*
+./objs
+
+ftGraphics/*.a
+ftGraphics/objs
 
 # Executables
 scop
