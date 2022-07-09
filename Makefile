@@ -12,7 +12,7 @@ INC 	= -I ./include				\
 			-I ./ftGraphics/include	\
 
 SRCDIR	= ./src/
-SRC		= scop.cpp Model.cpp utils.cpp
+SRC		= scop.cpp Model.cpp parser.cpp
 
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}

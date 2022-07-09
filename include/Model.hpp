@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/08 03:27:40 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/09 06:21:35 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,27 +24,12 @@ class Model
 
 		Model(const std::string& path);
 
-		void debug() const;
-
 	private:
-
-		using VectorType = Vector<3, float>;
-		using Face = std::vector<std::array<unsigned int, 3>>;
 		
-		/* Specific parsing functions */
-		void _parseVertex(const std::vector<std::string>& values, int line);
-		void _parseTextureCoordinates(const std::vector<std::string>& values, int line);
-		void _parseNormalVector(const std::vector<std::string>& values, int line);
-		void _parseFace(const std::vector<std::string>& values, int line);
-
-		/* Utils */
-		std::vector<std::string> _split(const std::string& str, char delim = ' ');
-
-		std::vector<VectorType>	_M_Vertices;
-		std::vector<VectorType>	_M_TexCoordinates;
-		std::vector<VectorType>	_M_Normals;
-		std::vector<Face>		_M_Indices;
-		bool					_M_SmoothShadingEnabled;
+		/* Members */
+		unsigned int 			_M_VertexBuffer;
+		unsigned int 			_M_IndexBuffer;
+		// bool					_M_SmoothShadingEnabled;
 };
 
 #endif
