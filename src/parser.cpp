@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 05:55:20 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/09 07:21:03 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/10 20:00:45 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,10 +84,10 @@ void parseFace(ObjectInfo& obj, const SplitArray& values, int line)
 	if (values.size() < 4)
 		throw std::invalid_argument("Bad syntax at line " + std::to_string(line) + ": a face is at least 3 elements");
 
-	obj.indices.emplace_back();
+	obj.faces.emplace_back();
 	for (auto it = values.begin() + 1; it != values.end(); it++)
 	{
-        obj.indices.back().reserve(obj.indices.back().capacity() + 3);
+        obj.faces.back().reserve(obj.faces.back().capacity() + 3);
 
 		auto elements = split(*it, '/', true);
 		unsigned int index = 0;
@@ -101,13 +101,13 @@ void parseFace(ObjectInfo& obj, const SplitArray& values, int line)
 					int converted = std::stoi(elements[index]);
 					if (converted <= 0)
 						throw std::invalid_argument("Bad syntax at line " + std::to_string(line) + ": indices must be strictly greater than 0");
-					obj.indices.back().push_back(converted);
+					obj.faces.back().push_back(converted);
 				}
 				else if (index == 0)
 					throw std::invalid_argument("Bad syntax at line " + std::to_string(line) + ": Vertex index cannot be omitted");
 			}
 			else
-				obj.indices.back().push_back(0);
+				obj.faces.back().push_back(0);
 			index++;
 		}
 	}
@@ -146,7 +146,7 @@ void ObjectInfo::debug() const
 		std::cout << "vn " << *it << ' ' << *(it + 1) << ' ' << *(it + 2) << '\n';
 	std::cout << '\n';
 	
-	std::for_each(indices.begin(), indices.end(), [](const std::vector<unsigned int>& face) {
+	std::for_each(faces.begin(), faces.end(), [](const std::vector<unsigned int>& face) {
 		std::cout << "f ";
 		for (size_t i = 0; i < face.size(); i++)
 			std::cout << face[i] << ((i % 3 == 2) ? ' ' : '/');

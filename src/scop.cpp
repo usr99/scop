@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/08 05:16:32 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/11 19:34:49 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,41 +56,46 @@ int main(int ac, char **av)
 		if (glewInit() != GLEW_OK)
 			throw std::runtime_error("GLEW initialization failed");
 
-		/* OpenGL stuff */
-		float vertices[] = {
-			/*   VERTICES       	 COLORS       */
-			-0.5f, -0.5f,		1.0f, 0.0f, 0.0f,
-			 0.5f, -0.5f,		0.0f, 1.0f, 0.0f,
-			-0.5f,  0.5f,		0.0f, 0.0f, 1.0f,
-			 0.5f,  0.5f, 		1.0f, 1.0f, 1.0f
-		};
-
-		unsigned int indices[] = {
-			0, 1, 2,
-			1, 2, 3
-		};
-
 		unsigned int vao;
 		GLCall(glGenVertexArrays(1, &vao));
 		GLCall(glBindVertexArray(vao));
 
+		Shader shader("resources/shaders/basic");
+		shader.bind();
+
+#if 0
+
+		std::vector<float> vertices = {
+			// vertices
+			 0.0f,  0.0f, 0.0f,
+			 1.0f,  0.0f, 0.0f,
+			 0.0f,  1.0f, 0.0f,
+			 1.0f,  0.0f, 0.0f,
+			 0.0f,  1.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f,
+		};
+
+		std::vector<unsigned int> indices = {
+			0, 1, 2,
+			3, 4, 5
+		};
+
 		unsigned int vbuffer;
 		glGenBuffers(1, &vbuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vbuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
 		unsigned int ibuffer;
 		glGenBuffers(1, &ibuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuffer);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (const void*)(2 * sizeof(float)));
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
 
-		Shader shader("resources/shaders/basic");
-		shader.bind();
+#else
+		Model object(av[1]);
+#endif
 
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
@@ -98,15 +103,13 @@ int main(int ac, char **av)
 			/* Render here */
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			GLCall(glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0));
+			object.render();
 
 			/* Swap front and back buffers */
 			glfwSwapBuffers(window);
 			/* Poll for and process events */
 			glfwPollEvents();
 		}
-
-		// Model object(av[1]);
 	}
 	catch (const std::exception& e)
 	{

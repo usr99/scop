@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 05:50:53 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/09 06:39:39 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/10 19:59:54 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 
 struct ObjectInfo
 {
-	std::vector<std::vector<unsigned int>>	indices;
+	std::vector<std::vector<unsigned int>>	faces;
 	std::vector<float>			            vertices;
 	std::vector<float>			            textures;
 	std::vector<float>			            normals;
