@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/11 19:36:15 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/12 19:17:26 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include "parser.hpp"
 #include "ftGraphics.hpp"
 
-Model::Model(const std::string& path) : _M_VerticesCount(0)
+Model::Model(const std::string& path) : _M_VerticesCount(0), _M_ModelMatrix(1.0f)
 {
 	/* Check file extension */
 	size_t extensionIndex = path.find(".obj", path.length() - 4);
@@ -81,7 +81,7 @@ Model::Model(const std::string& path) : _M_VerticesCount(0)
 	** each vertex follows this pattern -> Coordinate|Texture|Normal
 	*/
 	size_t offset = 0;
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		GLCall(glEnableVertexAttribArray(i));
 		GLCall(glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (const char*)(offset)));
@@ -93,6 +93,24 @@ void
 Model::render() const
 {
 	GLCall(glDrawElements(GL_TRIANGLES, _M_VerticesCount, GL_UNSIGNED_INT, 0));
+}
+
+void
+Model::translate(const glm::vec3& direction)
+{
+	_M_ModelMatrix = glm::translate(_M_ModelMatrix, direction);
+}
+
+void
+Model::rotate(float angle, const glm::vec3& axis)
+{
+	_M_ModelMatrix = glm::rotate(_M_ModelMatrix, glm::radians(angle), axis);
+}
+
+void
+Model::scale(float factor)
+{
+	_M_ModelMatrix = glm::scale(_M_ModelMatrix, glm::vec3(factor, factor, factor));
 }
 
 void

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:36:27 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/08 04:08:47 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/12 16:58:56 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 # include <string>
 # include <unordered_map>
+
+# include "../../include/math.hpp"
 
 class Shader
 {	
@@ -29,6 +31,7 @@ class Shader
 		void setUniform1i(const std::string& name, int value);
 		void setUniform3f(const std::string& name, float v0, float v1, float v2);
 		void setUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
+		void setUniformMat4f(const std::string& name, const glm::mat4& matrix);
 
 	private:
 

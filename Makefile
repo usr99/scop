@@ -12,12 +12,12 @@ INC 	= -I ./include				\
 			-I ./ftGraphics/include	\
 
 SRCDIR	= ./src/
-SRC		= scop.cpp Model.cpp parser.cpp
+SRC		= scop.cpp Model.cpp parser.cpp 
 
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
 
-LIBS	= -L ftGraphics -lftGraphics -L libs -lglfw3 -lGLEW -lGL -lpthread -ldl -lX11
+LIBS	= -L ftGraphics -lftGraphics -L libs -lglfw3 -lGLEW -limgui -lGL -lpthread -ldl -lX11
 LIBFT	= ftGraphics/libftGraphics.a
 
 ##################################################

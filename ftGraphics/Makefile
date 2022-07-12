@@ -11,7 +11,7 @@ INC 	= -I ./include				\
 			-I ../libs/include		\
 
 SRCDIR	= ./src/
-SRC		= Shader.cpp VertexBufferLayout.cpp VertexArray.cpp debug.cpp
+SRC		= Shader.cpp debug.cpp
 
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}

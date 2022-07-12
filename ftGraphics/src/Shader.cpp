@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:37:56 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/08 04:10:48 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/12 19:06:38 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,12 @@ void
 Shader::setUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
 {
 	GLCall(glUniform4f(_getUniformLocation(name), v0, v1, v2, v3));
+}
+
+void
+Shader::setUniformMat4f(const std::string& name, const glm::mat4& matrix)
+{
+	GLCall(glUniformMatrix4fv(_getUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
 }
 
 std::string
