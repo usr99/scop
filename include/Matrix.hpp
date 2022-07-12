@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/05 15:24:38 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/08 04:46:13 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/11 20:09:02 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,16 +257,6 @@ struct Matrix
 		std::array<VectorType, Rows> _mData;
 };
 
-template <length_t R, length_t C, typename T>
-Matrix<R, C, T> lerp(const Matrix<R, C, T>& u, const Matrix<R, C, T>& v, float t)
-{
-	Matrix<R, C, T> result;
-
-	for (length_t i = 0; i < C; i++)
-		result[i] = lerp(u[i], v[i], t);
-	return result;
-}
-
 template <length_t M, length_t N, length_t P, typename T>
 Matrix<M, P, T> operator*(const Matrix<M, N, T>& lhs, const Matrix<N, P, T>& rhs)
 {
@@ -283,20 +273,6 @@ Matrix<M, P, T> operator*(const Matrix<M, N, T>& lhs, const Matrix<N, P, T>& rhs
 		for (length_t col = 0; col < P; col++)
 			result[row][col] = dot_product(row, col);
 	}
-	return result;
-}
-
-template <typename T>
-Matrix<4, 4, T> perspective(T fovy, T aspect, T zNear, T zFar)
-{
-	Matrix<4, 4, T> result({{0}});
-	T const tanHalfFovy = std::tan(fovy / static_cast<T>(2));
-
-	result[0][0] = static_cast<T>(1) / (aspect * tanHalfFovy);
-	result[1][1] = static_cast<T>(1) / (tanHalfFovy);
-	result[2][2] = -(zFar + zNear) / (zFar - zNear);
-	result[2][3] = -static_cast<T>(1);
-	result[3][2] = -(static_cast<T>(2) * zFar * zNear) / (zFar - zNear);
 	return result;
 }
 

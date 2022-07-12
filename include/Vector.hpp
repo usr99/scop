@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/05 15:20:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/04 10:25:13 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/11 20:10:00 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,22 +164,6 @@ Vector<L, T> linear_combination(const std::vector<Vector<L, T>>& u, const std::v
 	Vector<L, T> result;
 	for (size_t i = 0; i < u.size(); i++)
 		result += u[i] * coefs[i];
-	return result;
-}
-
-template <typename T>
-T lerp(const T& u, const T& v, float t)
-{
-	return std::fma((v - u), t, u);
-}
-
-template <length_t L, typename T>
-Vector<L, T> lerp(const Vector<L, T>& u, const Vector<L, T>& v, float t)
-{
-	Vector<L, T> result;
-
-	for (length_t i = 0; i < L; i++)
-		result[i] = lerp(u[i], v[i], t);
 	return result;
 }
 

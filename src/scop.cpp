@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/12 19:24:02 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/12 19:44:39 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@
 #include <iostream>
 #include <algorithm>
 
-#include "ftGraphics.hpp"
 #include "Model.hpp"
-#include "math.hpp"
+#include "ShaderProgram.hpp"
+#include "debug.hpp"
 
 #define WIN_W 800.0f
 #define WIN_H 600.0f
@@ -69,7 +69,7 @@ int main(int ac, char **av)
 		GLCall(glGenVertexArrays(1, &vao));
 		GLCall(glBindVertexArray(vao));
 
-		Shader shader("resources/shaders/basic");
+		ShaderProgram shader("src/shaders/basic");
 		shader.bind();
 
 		/* Setup Dear ImGui context */

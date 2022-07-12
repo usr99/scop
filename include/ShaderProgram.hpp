@@ -1,29 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Shader.hpp                                         :+:      :+:    :+:   */
+/*   ShaderProgram.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:36:27 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/12 16:58:56 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/12 19:43:13 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef _SHADER_HPP_
-# define _SHADER_HPP_
+#ifndef _SHADER_PROGRAM_HPP_
+# define _SHADER_PROGRAM_HPP_
 
 # include <string>
 # include <unordered_map>
 
-# include "../../include/math.hpp"
+# include "math.hpp"
 
-class Shader
+class ShaderProgram
 {	
 	public:
 	
-		Shader(const std::string& filepath);
-		~Shader();
+		ShaderProgram(const std::string& filepath);
+		~ShaderProgram();
 
 		void bind() const;
 		void unbind() const;
