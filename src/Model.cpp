@@ -6,18 +6,26 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/12 19:17:26 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/13 13:26:08 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fstream>
+#include <iostream>
+#include <random>
 #include <stdexcept>
+#include <ctime>
+
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 #include "Model.hpp"
 #include "parser.hpp"
-#include "ftGraphics.hpp"
+#include "debug.hpp"
 
-Model::Model(const std::string& path) : _M_VerticesCount(0), _M_ModelMatrix(1.0f)
+Model::Model(const std::string& path)
+	: _M_VerticesCount(0), _M_ModelMatrix(1.0f),
 {
 	/* Check file extension */
 	size_t extensionIndex = path.find(".obj", path.length() - 4);
@@ -41,13 +49,34 @@ Model::Model(const std::string& path) : _M_VerticesCount(0), _M_ModelMatrix(1.0f
 	vxBuffer.reserve(_M_VerticesCount * 9);
 	idxBuffer.reserve(_M_VerticesCount);
 
+	/* Initialize RNG to color each face of the model */
+	std::srand(time(nullptr));
+
+	std::vector<std::array<float, 3>> colorPalette(obj.faces.size());
+	float colorStep = 1.0f / static_cast<float>(obj.faces.size());
+	
+	for (int i = 0; i < 3; i++)
+	{
+		float currentColor = colorStep;
+		for (auto j = (colorPalette.size() / 3) * i; j < (colorPalette.size() / 3) * (i + 1); j++)
+		{
+			colorPalette[j] = { 1.f, 1.f, 1.f };
+			colorPalette[j][i] = currentColor;
+			currentColor += colorStep;
+		}
+	}
+	    std::random_device rd;
+	    std::mt19937 g(rd());
+		std::shuffle(colorPalette.begin(), colorPalette.end(), g);
 	/*
 	** Convert obj formatted data
 	** In a .obj file, the same coordinates can be used multiple times with different texture coordinates and normals
 	** In a OpenGL VBO, each vertex is a unique combination of these attributes
 	** Thus we have to copy some of the .obj face to create our vertices
 	*/
-	unsigned int index = 0;
+	unsigned int vertexIndex = 0;
+	unsigned int faceIndex = 0;
+
 	for (auto face : obj.faces)
 	{
 		bool isTriangle = (face.size() == 3 * 3);
@@ -59,10 +88,13 @@ Model::Model(const std::string& path) : _M_VerticesCount(0), _M_ModelMatrix(1.0f
 			_insertVertexAttribute(vxBuffer, obj.textures, face[i + 1]);
 			_insertVertexAttribute(vxBuffer, obj.normals, face[i + 2]);
 
+			/* Add a random shade of grey to the vertex */
+			vxBuffer.insert(vxBuffer.end(), colorPalette[faceIndex].begin(), colorPalette[faceIndex].end());
 			if (isTriangle)
-				idxBuffer.push_back(index);
-			index++;
+				idxBuffer.push_back(vertexIndex);
+			vertexIndex++;
 		}
+		faceIndex++;
 
 		// if (!isTriangle)
 	}
@@ -81,10 +113,10 @@ Model::Model(const std::string& path) : _M_VerticesCount(0), _M_ModelMatrix(1.0f
 	** each vertex follows this pattern -> Coordinate|Texture|Normal
 	*/
 	size_t offset = 0;
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		GLCall(glEnableVertexAttribArray(i));
-		GLCall(glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 9, (const char*)(offset)));
+		GLCall(glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 12, (const char*)(offset)));
 		offset += + 3 * sizeof(float);
 	}
 }

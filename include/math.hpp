@@ -6,21 +6,21 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 19:40:35 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/12 17:35:28 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/12 20:11:17 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef _MATH_HPP_
 # define _MATH_HPP_
 
-// # include "Matrix.hpp"
+# include "Matrix.hpp"
 
 # include <glm/glm.hpp>
 # include <glm/gtc/matrix_transform.hpp>
 
-// typedef Matrix<4, 4, float> mat4;
-// typedef Vector<3, float> vec3;
-// typedef Vector<4, float> vec4;
+typedef Matrix<4, 4, float> mat4;
+typedef Vector<3, float> vec3;
+typedef Vector<4, float> vec4;
 
 // template <typename T>
 // T lerp(const T& u, const T& v, float t)

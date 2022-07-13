@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/12 19:44:39 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/12 20:14:31 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 
 #define WIN_W 800.0f
 #define WIN_H 600.0f
+#define BACKGROUND_COLOR 0.404f, 0.631f, 0.624f, 1.0f
 
 int main(int ac, char **av)
 {
@@ -64,6 +65,7 @@ int main(int ac, char **av)
 			throw std::runtime_error("GLEW initialization failed");
 
 		GLCall(glEnable(GL_DEPTH_TEST));
+		GLCall(glClearColor(BACKGROUND_COLOR));
 
 		unsigned int vao;
 		GLCall(glGenVertexArrays(1, &vao));
@@ -84,11 +86,11 @@ int main(int ac, char **av)
 		ImGui::StyleColorsDark();
 
 		glm::mat4 proj = glm::perspective(glm::radians(45.0f), WIN_W / WIN_H, 0.1f, 50.0f);
-		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, -3.0f));
+		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, -1.0f, -5.0f));
 
 		Model object(av[1]);
 		float rotate[2] = { 0.0f };
-		float translate[2] = { 0.0f };
+		float translate[3] = { 0.0f };
 
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
@@ -99,7 +101,7 @@ int main(int ac, char **av)
 			/* Reset transformations */
 			object.rotate(-rotate[1], glm::vec3(0.0f, 1.0f, 0.0f));
 			object.rotate(-rotate[0], glm::vec3(1.0f, 0.0f, 0.0f));
-			object.translate(glm::vec3(-translate[0], -translate[1], 0.0f));
+			object.translate(glm::vec3(-translate[0], -translate[1], -translate[2]));
 
 			/* Create the new ImGui frame */
 			ImGui_ImplOpenGL3_NewFrame();
@@ -108,11 +110,11 @@ int main(int ac, char **av)
 
 			ImGui::Begin("Debug panel");
 			ImGui::SliderFloat2("Rotate", rotate, 0.0f, 360.0f);
-			ImGui::SliderFloat2("Translate", translate, -10.0f, 10.0f);
+			ImGui::SliderFloat3("Translate", translate, -3.0f, 3.0f);
 			ImGui::End();
 
 			/* Apply transformations and render */
-			object.translate(glm::vec3(translate[0], translate[1], 0.0f));
+			object.translate(glm::vec3(translate[0], translate[1], translate[2]));
 			object.rotate(rotate[0], glm::vec3(1.0f, 0.0f, 0.0f));
 			object.rotate(rotate[1], glm::vec3(0.0f, 1.0f, 0.0f));
 			shader.setUniformMat4f("uMVP", proj * view * object.getMatrix());

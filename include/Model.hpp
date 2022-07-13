@@ -38,7 +38,7 @@ class Model
 
 		unsigned int 			_M_VertexBuffer;
 		unsigned int 			_M_IndexBuffer;
-		unsigned int			_M_VerticesCount;
+		int						_M_VerticesCount;
 		glm::mat4				_M_ModelMatrix;
 
 		// bool					_M_SmoothShadingEnabled;
