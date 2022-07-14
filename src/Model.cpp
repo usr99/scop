@@ -6,13 +6,13 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/14 14:42:27 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/15 00:40:30 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fstream>
 #include <iostream>
-#include <random>
+#include <functional>
 #include <stdexcept>
 #include <ctime>
 
@@ -26,18 +26,17 @@
 
 Model::Model(const std::string& path)
 	: _M_VerticesCount(0), _M_ModelMatrix(1.0f),
-		_M_CurrentColorMode(0), _M_PreviousColorMode(-1)
+		_M_ColorMode{ false }, _M_ColorModeMask(-1)
 {
 	/* Check file extension */
 	size_t extensionIndex = path.find(".obj", path.length() - 4);
 	if (extensionIndex == std::string::npos)
 		throw std::invalid_argument("Bad file extension, must be .obj");
 
-	/* Open object file */
+	/* Load 3D model */
 	std::ifstream file(path);
 	if (!file)
 		throw std::invalid_argument(path + " not found");
-
 	ObjectInfo obj = loadObjectFile(file);
 	file.close();
 	
@@ -47,9 +46,7 @@ Model::Model(const std::string& path)
 	std::vector<float> vxBuffer(_M_VerticesCount * 12, 0.f);
 	std::vector<unsigned int> idxBuffer;
 	idxBuffer.reserve(_M_VerticesCount);
-
-	/* Initialize RNG to color each face of the model */
-	std::srand(time(nullptr));
+	
 	/*
 	** Convert obj formatted data
 	** In a .obj file, the same coordinates can be used multiple times with different texture coordinates and normals
@@ -78,7 +75,7 @@ Model::Model(const std::string& path)
 		// if (!isTriangle)
 	}
 
-	/* Create vertex buffer object from converted data */
+	/* Create VBOs from converted data */
 	GLCall(glGenBuffers(1, &_M_VertexBuffer));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, _M_VertexBuffer));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, vxBuffer.size() * sizeof(float), vxBuffer.data(), GL_STATIC_DRAW));
@@ -89,7 +86,8 @@ Model::Model(const std::string& path)
 
 	/*
 	** Set vertex layout
-	** each vertex follows this pattern -> Coordinate|Texture|Normal
+	** the attributes are tightly packed in the buffer, as specified by the stride of 0
+	** respectively vertex coordinates, textures coordinates, normals and colors
 	*/
 	size_t offset = 0;
 	for (int i = 0; i < 5; i++)
@@ -98,76 +96,20 @@ Model::Model(const std::string& path)
 		GLCall(glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 0, (const char*)(offset)));
 		offset += _M_VerticesCount * 3 * sizeof(float);
 	}
+
+	/* Initialize RNG which is needed to randomly generate faces colors */
+	std::srand(time(nullptr));
 }
 
 void
 Model::render()
 {
-	if (_M_CurrentColorMode != _M_PreviousColorMode)
+	/* Generate a new array of color attributes for the vertices if the settings have changed */
+	char colorMask = _getCurrentColorModeMask();
+	if (colorMask != _M_ColorModeMask)
 	{
-		std::vector<float> palette;
-		float colorStep = 1.0f / static_cast<float>(_M_VerticesCount);
-		float currentColor = colorStep;
-
-		palette.reserve(_M_VerticesCount * 3);
-		if (_M_CurrentColorMode & RGB_COLORS)
-		{
-			if (_M_CurrentColorMode & SHUFFLE)
-			{
-				for (size_t i = 0; i < palette.capacity(); i += 9)
-				{
-					float r = static_cast<float>(std::rand()) / RAND_MAX;
-					float g = static_cast<float>(std::rand()) / RAND_MAX;
-					float b = static_cast<float>(std::rand()) / RAND_MAX;
-					palette.insert(palette.end(), { r, g, b });
-					palette.insert(palette.end(), { r, g, b });
-					palette.insert(palette.end(), { r, g, b });
-				}
-			}
-			else
-			{
-				for (size_t i = 0; i < palette.capacity() / 3; i += 3)
-				{
-					palette.insert(palette.begin() + i, { currentColor, 1.f, 1.f });
-					currentColor += colorStep;
-				}
-				currentColor = colorStep;
-
-				for (size_t i = 0; i < palette.capacity() / 3; i += 3)
-				{
-					palette.insert(palette.begin() + i, { 1.f, 1.f, currentColor });
-					currentColor += colorStep;
-				}
-				currentColor = colorStep;
-
-				for (size_t i = 0; i < palette.capacity() / 3; i += 3)
-				{
-					palette.insert(palette.begin() + i, { 1.f, currentColor, 1.f });
-					currentColor += colorStep;
-				}
-			}
-		}
-		else
-		{
-			for (size_t i = 0; i < palette.capacity(); i += 3)
-			{
-				if (_M_CurrentColorMode & SHUFFLE)
-					palette.insert(palette.end(), 3, static_cast<float>(std::rand()) / RAND_MAX);
-				else
-					palette.insert(palette.end(), 3, currentColor);
-				currentColor += colorStep;
-			}
-		}
-
-		GLCall(glBindBuffer(GL_ARRAY_BUFFER, _M_VertexBuffer));
-		GLCall(glBufferSubData(
-			GL_ARRAY_BUFFER,
-			sizeof(float) * _M_VerticesCount * 3 * 3,
-			sizeof(float) * _M_VerticesCount * 3,
-			palette.data()	
-		));
-
-		_M_PreviousColorMode = _M_CurrentColorMode;
+		_generateColorPalette();
+		_M_ColorModeMask = colorMask;
 	}
 
 	GLCall(glDrawElements(GL_TRIANGLES, _M_VerticesCount, GL_UNSIGNED_INT, 0));
@@ -176,10 +118,15 @@ Model::render()
 void
 Model::showSettingsPanel()
 {
-	const char* names[] = { "Grey", "Colored", "Grey randomized", "Colored randomized" };
-
 	ImGui::Begin("Settings");
-	ImGui::SliderInt("Color Mode", &_M_CurrentColorMode, 0, 3, names[_M_CurrentColorMode]);
+
+	ImGui::Checkbox("Colored ?", _M_ColorMode);
+	ImGui::Checkbox("Random colors ?", _M_ColorMode + 1);
+	
+	ImGui::BeginDisabled(!_M_ColorMode[RANDOM_MODE]);
+	ImGui::Checkbox("Gradient mode ?", _M_ColorMode + 2);
+	ImGui::EndDisabled();
+
 	ImGui::End();
 }
 
@@ -203,14 +150,101 @@ Model::scale(float factor)
 
 void
 Model::_insertVertexAttribute(
-	std::vector<float>& buffer,
-	int offset,
-	std::vector<float>& from,
-	int index
+	std::vector<float>& buffer,	// vertex buffer where the data is inserted
+	int offset, 				// starting position of the inserted data
+	std::vector<float>& from,	// source array from which the vertices are copied
+	int index					// starting position from where to copy
 ) {
 	if (index != 0)
 	{
 		index--;
 		std::copy_n(from.begin() + index * 3, 3, buffer.begin() + offset);
 	}
+}
+
+char
+Model::_getCurrentColorModeMask() const
+{
+	return _M_ColorMode[RGB_MODE] | _M_ColorMode[RANDOM_MODE] << 1 | _M_ColorMode[GRADIENT_MODE] << 2;
+}
+
+void
+Model::_generateColorPalette()
+{
+	std::vector<float> palette;
+	palette.reserve(_M_VerticesCount * 3);
+
+	float colorStep = (_M_ColorMode[GRADIENT_MODE] ? 1.f : 3.f) / static_cast<float>(_M_VerticesCount);
+	float currentColor = colorStep;
+	std::function<void(std::array<float, 3> &)> generateColorFunc;
+
+	if (_M_ColorMode[RGB_MODE])
+	{
+		if (_M_ColorMode[RANDOM_MODE])
+		{
+			// red and green components are random, blue is 1
+			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
+			{
+				rgb[2] = 1.f;
+				for (int j = 0; j < 2; j++)
+					rgb[j] = static_cast<float>(std::rand()) / RAND_MAX;
+			};
+		}
+		else
+		{
+			// blue component is set incrementally with the others set at 1
+			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
+			{
+				rgb[2] = currentColor;
+				currentColor += colorStep;
+			};
+		}
+	}
+	else
+	{
+		if (_M_ColorMode[RANDOM_MODE])
+		{
+			// random shade of grey
+			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
+			{
+				rgb.fill(static_cast<float>(std::rand()) / RAND_MAX);
+			};
+		}
+		else
+		{
+			// starting from black, slowly increment until it is white
+			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
+			{
+				rgb.fill(currentColor);
+				currentColor += colorStep;
+			};
+		}
+	}
+
+	for (size_t i = 0; i < palette.capacity(); i += 3)
+	{
+		std::array<float, 3> rgb = {0.f};
+		generateColorFunc(rgb);
+
+		if (_M_ColorMode[GRADIENT_MODE]) // only write the color for one vertex
+			palette.insert(palette.end(), rgb.begin(), rgb.end());
+		else // write the color for the whole triangle
+		{
+			for (int j = 0; j < 3; j++)
+				palette.insert(palette.end(), rgb.begin(), rgb.end());
+			i += 6;
+		}
+	}
+
+	/*
+	** Copy the new array to GPU memory for later rendering
+	** only the last quarter of the buffer is written
+	*/
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, _M_VertexBuffer));
+	GLCall(glBufferSubData(
+		GL_ARRAY_BUFFER,
+		sizeof(float) * _M_VerticesCount * 3 * 3,
+		sizeof(float) * _M_VerticesCount * 3,
+		palette.data())
+	);
 }
