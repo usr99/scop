@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/12 11:52:45 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/14 03:25:58 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@ class Model
 
 		Model(const std::string& path);
 
-		void render() const;
+		void render();
+		void showSettingsPanel();
 
 		void translate(const glm::vec3& direction);
 		void rotate(float angle, const glm::vec3& axis);
@@ -33,14 +34,25 @@ class Model
 		inline const glm::mat4& getMatrix() const { return _M_ModelMatrix; };
 
 	private:
-		
-		void _insertVertexAttribute(std::vector<float>& buffer, std::vector<float>& from, int index);
+
+		enum ColorModeFlags
+		{
+			DEFAULT,
+			RGB_COLORS,
+			SHUFFLE
+		};
+
+		void _insertVertexAttribute(std::vector<float>& buffer,int offset, std::vector<float>& from, int index);
 
 		unsigned int 			_M_VertexBuffer;
 		unsigned int 			_M_IndexBuffer;
 		int						_M_VerticesCount;
 		glm::mat4				_M_ModelMatrix;
 
+		int						_M_CurrentColorMode;
+		int						_M_PreviousColorMode;
+
+		// bool					_M_HasTexture;
 		// bool					_M_SmoothShadingEnabled;
 };
 

@@ -33,18 +33,16 @@ ${OBJDIR}:
 	mkdir -p ${OBJDIR}
 
 ##################################################
-#  				   USUAL RULES					 #
+#  				   USUAL RULES					 #./
 ##################################################
 
 all: ${TARGET}
 
 clean:
 	rm -rf ${OBJDIR}
-	${MAKE} clean -C ftGraphics
 
 fclean: clean
 	rm -rf ${TARGET}
-	${MAKE} fclean -C ftGraphics
 
 re: fclean all
 

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/13 13:26:08 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/14 14:42:27 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 
 Model::Model(const std::string& path)
 	: _M_VerticesCount(0), _M_ModelMatrix(1.0f),
+		_M_CurrentColorMode(0), _M_PreviousColorMode(-1)
 {
 	/* Check file extension */
 	size_t extensionIndex = path.find(".obj", path.length() - 4);
@@ -40,34 +41,15 @@ Model::Model(const std::string& path)
 	ObjectInfo obj = loadObjectFile(file);
 	file.close();
 	
-	std::vector<float> vxBuffer;
-	std::vector<unsigned int> idxBuffer;
-	
 	/* Allocate enough memory to contain all vertices */
 	for (auto face : obj.faces)
 		_M_VerticesCount += face.size() / 3;
-	vxBuffer.reserve(_M_VerticesCount * 9);
+	std::vector<float> vxBuffer(_M_VerticesCount * 12, 0.f);
+	std::vector<unsigned int> idxBuffer;
 	idxBuffer.reserve(_M_VerticesCount);
 
 	/* Initialize RNG to color each face of the model */
 	std::srand(time(nullptr));
-
-	std::vector<std::array<float, 3>> colorPalette(obj.faces.size());
-	float colorStep = 1.0f / static_cast<float>(obj.faces.size());
-	
-	for (int i = 0; i < 3; i++)
-	{
-		float currentColor = colorStep;
-		for (auto j = (colorPalette.size() / 3) * i; j < (colorPalette.size() / 3) * (i + 1); j++)
-		{
-			colorPalette[j] = { 1.f, 1.f, 1.f };
-			colorPalette[j][i] = currentColor;
-			currentColor += colorStep;
-		}
-	}
-	    std::random_device rd;
-	    std::mt19937 g(rd());
-		std::shuffle(colorPalette.begin(), colorPalette.end(), g);
 	/*
 	** Convert obj formatted data
 	** In a .obj file, the same coordinates can be used multiple times with different texture coordinates and normals
@@ -84,12 +66,9 @@ Model::Model(const std::string& path)
 		for (unsigned int i = 0; i < face.size(); i += 3)
 		{
 			/* Create a new vertex from the indices in the face component of the object file */
-			_insertVertexAttribute(vxBuffer, obj.vertices, face[i]);
-			_insertVertexAttribute(vxBuffer, obj.textures, face[i + 1]);
-			_insertVertexAttribute(vxBuffer, obj.normals, face[i + 2]);
-
-			/* Add a random shade of grey to the vertex */
-			vxBuffer.insert(vxBuffer.end(), colorPalette[faceIndex].begin(), colorPalette[faceIndex].end());
+			_insertVertexAttribute(vxBuffer, (_M_VerticesCount * 0 + vertexIndex) * 3, obj.vertices, face[i]);
+			_insertVertexAttribute(vxBuffer, (_M_VerticesCount * 1 + vertexIndex) * 3, obj.textures, face[i + 1]);
+			_insertVertexAttribute(vxBuffer, (_M_VerticesCount * 2 + vertexIndex) * 3, obj.normals, face[i + 2]);
 			if (isTriangle)
 				idxBuffer.push_back(vertexIndex);
 			vertexIndex++;
@@ -116,15 +95,92 @@ Model::Model(const std::string& path)
 	for (int i = 0; i < 5; i++)
 	{
 		GLCall(glEnableVertexAttribArray(i));
-		GLCall(glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 12, (const char*)(offset)));
-		offset += + 3 * sizeof(float);
+		GLCall(glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 0, (const char*)(offset)));
+		offset += _M_VerticesCount * 3 * sizeof(float);
 	}
 }
 
 void
-Model::render() const
+Model::render()
 {
+	if (_M_CurrentColorMode != _M_PreviousColorMode)
+	{
+		std::vector<float> palette;
+		float colorStep = 1.0f / static_cast<float>(_M_VerticesCount);
+		float currentColor = colorStep;
+
+		palette.reserve(_M_VerticesCount * 3);
+		if (_M_CurrentColorMode & RGB_COLORS)
+		{
+			if (_M_CurrentColorMode & SHUFFLE)
+			{
+				for (size_t i = 0; i < palette.capacity(); i += 9)
+				{
+					float r = static_cast<float>(std::rand()) / RAND_MAX;
+					float g = static_cast<float>(std::rand()) / RAND_MAX;
+					float b = static_cast<float>(std::rand()) / RAND_MAX;
+					palette.insert(palette.end(), { r, g, b });
+					palette.insert(palette.end(), { r, g, b });
+					palette.insert(palette.end(), { r, g, b });
+				}
+			}
+			else
+			{
+				for (size_t i = 0; i < palette.capacity() / 3; i += 3)
+				{
+					palette.insert(palette.begin() + i, { currentColor, 1.f, 1.f });
+					currentColor += colorStep;
+				}
+				currentColor = colorStep;
+
+				for (size_t i = 0; i < palette.capacity() / 3; i += 3)
+				{
+					palette.insert(palette.begin() + i, { 1.f, 1.f, currentColor });
+					currentColor += colorStep;
+				}
+				currentColor = colorStep;
+
+				for (size_t i = 0; i < palette.capacity() / 3; i += 3)
+				{
+					palette.insert(palette.begin() + i, { 1.f, currentColor, 1.f });
+					currentColor += colorStep;
+				}
+			}
+		}
+		else
+		{
+			for (size_t i = 0; i < palette.capacity(); i += 3)
+			{
+				if (_M_CurrentColorMode & SHUFFLE)
+					palette.insert(palette.end(), 3, static_cast<float>(std::rand()) / RAND_MAX);
+				else
+					palette.insert(palette.end(), 3, currentColor);
+				currentColor += colorStep;
+			}
+		}
+
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, _M_VertexBuffer));
+		GLCall(glBufferSubData(
+			GL_ARRAY_BUFFER,
+			sizeof(float) * _M_VerticesCount * 3 * 3,
+			sizeof(float) * _M_VerticesCount * 3,
+			palette.data()	
+		));
+
+		_M_PreviousColorMode = _M_CurrentColorMode;
+	}
+
 	GLCall(glDrawElements(GL_TRIANGLES, _M_VerticesCount, GL_UNSIGNED_INT, 0));
+}
+
+void
+Model::showSettingsPanel()
+{
+	const char* names[] = { "Grey", "Colored", "Grey randomized", "Colored randomized" };
+
+	ImGui::Begin("Settings");
+	ImGui::SliderInt("Color Mode", &_M_CurrentColorMode, 0, 3, names[_M_CurrentColorMode]);
+	ImGui::End();
 }
 
 void
@@ -146,13 +202,15 @@ Model::scale(float factor)
 }
 
 void
-Model::_insertVertexAttribute(std::vector<float>& buffer, std::vector<float>& from, int index)
-{
+Model::_insertVertexAttribute(
+	std::vector<float>& buffer,
+	int offset,
+	std::vector<float>& from,
+	int index
+) {
 	if (index != 0)
 	{
 		index--;
-		buffer.insert(buffer.end(), from.begin() + index * 3, from.begin() + (index + 1) * 3);
+		std::copy_n(from.begin() + index * 3, 3, buffer.begin() + offset);
 	}
-	else
-		buffer.insert(buffer.end(), { 0.f, 0.f, 0.f });
 }

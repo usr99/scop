@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/12 20:14:31 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/14 02:42:13 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,8 @@ int main(int ac, char **av)
 			object.rotate(rotate[0], glm::vec3(1.0f, 0.0f, 0.0f));
 			object.rotate(rotate[1], glm::vec3(0.0f, 1.0f, 0.0f));
 			shader.setUniformMat4f("uMVP", proj * view * object.getMatrix());
+
+			object.showSettingsPanel();
 			object.render();
 
 			/* Render dear imgui into screen */
