@@ -5,12 +5,18 @@ layout(location = 1) in vec3 aTexture;
 layout(location = 2) in vec3 aNormal;
 layout(location = 3) in vec3 aColor;
 
-out vec4 fragColor;
+out vec3 currentPosition;
+out vec3 normal;
+out vec4 color;
 
-uniform mat4 uMVP;
+uniform mat4 uCamera;
+uniform mat4 uModel;
 
 void main()
 {
-	fragColor = vec4(aColor, 1.0);
-	gl_Position = uMVP * vec4(aPosition, 1.0);
+	currentPosition = vec3(uModel * vec4(aPosition, 1.0));
+	normal = aNormal;
+	color = vec4(aColor, 1.0);
+
+	gl_Position = uCamera * vec4(currentPosition, 1.0);
 }

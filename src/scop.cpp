@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/14 02:42:13 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/07/16 00:16:12 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ int main(int ac, char **av)
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		/* Create a windowed mode window and its OpenGL context */
-		window = glfwCreateWindow(WIN_W, WIN_H, "Hello World", NULL, NULL);
+		window = glfwCreateWindow(WIN_W, WIN_H, "Scop", NULL, NULL);
 		if (!window)
 			throw std::runtime_error("Window creation failed");
 
@@ -86,7 +86,7 @@ int main(int ac, char **av)
 		ImGui::StyleColorsDark();
 
 		glm::mat4 proj = glm::perspective(glm::radians(45.0f), WIN_W / WIN_H, 0.1f, 50.0f);
-		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, -1.0f, -5.0f));
+		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.0f, -5.0f));
 
 		Model object(av[1]);
 		float rotate[2] = { 0.0f };
@@ -108,6 +108,7 @@ int main(int ac, char **av)
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 
+			/* Show space transformations panel */
 			ImGui::Begin("Debug panel");
 			ImGui::SliderFloat2("Rotate", rotate, 0.0f, 360.0f);
 			ImGui::SliderFloat3("Translate", translate, -3.0f, 3.0f);
@@ -117,7 +118,9 @@ int main(int ac, char **av)
 			object.translate(glm::vec3(translate[0], translate[1], translate[2]));
 			object.rotate(rotate[0], glm::vec3(1.0f, 0.0f, 0.0f));
 			object.rotate(rotate[1], glm::vec3(0.0f, 1.0f, 0.0f));
-			shader.setUniformMat4f("uMVP", proj * view * object.getMatrix());
+			
+			shader.setUniformMat4f("uCamera", proj * view);
+			shader.setUniformMat4f("uModel", object.getMatrix());
 
 			object.showSettingsPanel();
 			object.render();
