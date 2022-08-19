@@ -12,7 +12,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <functional>
 #include <stdexcept>
 #include <ctime>
 
@@ -111,22 +110,21 @@ Model::render()
 		_generateColorPalette();
 		_M_ColorModeMask = colorMask;
 	}
-
 	GLCall(glDrawElements(GL_TRIANGLES, _M_VerticesCount, GL_UNSIGNED_INT, 0));
 }
 
 void
 Model::showSettingsPanel()
 {
-	ImGui::Begin("Settings");
-
-	ImGui::Checkbox("Colored ?", _M_ColorMode);
-	ImGui::Checkbox("Random colors ?", _M_ColorMode + 1);
-	
-	ImGui::BeginDisabled(!_M_ColorMode[RANDOM_MODE]);
-	ImGui::Checkbox("Gradient mode ?", _M_ColorMode + 2);
+	ImGui::Begin("Color Settings");
+	ImGui::Checkbox("Add shades ?", _M_ColorMode + SHADES_MODE);
+	ImGui::BeginDisabled(!_M_ColorMode[SHADES_MODE]);
+		ImGui::Checkbox("Shuffle colors ?", _M_ColorMode + RANDOM_MODE);
+		ImGui::BeginDisabled(!_M_ColorMode[RANDOM_MODE]);
+			ImGui::Checkbox("RGB ?", _M_ColorMode + COLOR_MODE);
+			ImGui::Checkbox("Gradient effect ?", _M_ColorMode + GRADIENT_MODE);
+		ImGui::EndDisabled();
 	ImGui::EndDisabled();
-
 	ImGui::End();
 }
 
@@ -165,60 +163,61 @@ Model::_insertVertexAttribute(
 char
 Model::_getCurrentColorModeMask() const
 {
-	return _M_ColorMode[RGB_MODE] | _M_ColorMode[RANDOM_MODE] << 1 | _M_ColorMode[GRADIENT_MODE] << 2;
+	char mask = 0;
+	for (int i = 0; i < NB_COLOR_SETTINGS; i++)
+		mask |= _M_ColorMode[i] << i;
+	return mask;
 }
 
 void
 Model::_generateColorPalette()
 {
 	std::vector<float> palette;
+	std::function<void(std::array<float, 3> &)> generateColorFunc;
 	palette.reserve(_M_VerticesCount * 3);
 
-	float colorStep = (_M_ColorMode[GRADIENT_MODE] ? 1.f : 3.f) / static_cast<float>(_M_VerticesCount);
-	float currentColor = colorStep;
-	std::function<void(std::array<float, 3> &)> generateColorFunc;
-
-	if (_M_ColorMode[RGB_MODE])
+	if (_M_ColorMode[SHADES_MODE])
 	{
 		if (_M_ColorMode[RANDOM_MODE])
 		{
-			// red and green components are random, blue is 1
-			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
+			if (_M_ColorMode[COLOR_MODE])
 			{
-				rgb[2] = 1.f;
-				for (int j = 0; j < 2; j++)
-					rgb[j] = static_cast<float>(std::rand()) / RAND_MAX;
-			};
-		}
-		else
-		{
-			// blue component is set incrementally with the others set at 1
-			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
+				// red and green components are random, blue is 1
+				generateColorFunc = [](std::array<float, 3> &rgb)
+				{
+					// rgb[2] = 1.f;
+					for (int j = 0; j < 3; j++)
+						rgb[j] = static_cast<float>(std::rand()) / RAND_MAX;
+				};
+			}
+			else
 			{
-				rgb[2] = currentColor;
-				currentColor += colorStep;
-			};
-		}
-	}
-	else
-	{
-		if (_M_ColorMode[RANDOM_MODE])
-		{
-			// random shade of grey
-			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
-			{
-				rgb.fill(static_cast<float>(std::rand()) / RAND_MAX);
-			};
+				// random shade of grey
+				generateColorFunc = [](std::array<float, 3> &rgb)
+				{
+					rgb.fill(static_cast<float>(std::rand()) / RAND_MAX);
+				};
+			}
 		}
 		else
 		{
 			// starting from black, slowly increment until it is white
+			float colorStep = (_M_ColorMode[GRADIENT_MODE] ? 1.f : 3.f) / static_cast<float>(_M_VerticesCount);
+			float currentColor = colorStep;			
 			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
 			{
 				rgb.fill(currentColor);
 				currentColor += colorStep;
 			};
 		}
+	}
+	else
+	{
+		// only grey
+		generateColorFunc = [](std::array<float, 3> &rgb)
+		{
+			rgb.fill(0.5f);
+		};
 	}
 
 	for (size_t i = 0; i < palette.capacity(); i += 3)

@@ -18,6 +18,9 @@
 
 # include "math.hpp"
 
+# define NB_COLOR_SETTINGS 4
+# define NB_COLOR_SETTINGS_COMBINATIONS 6
+
 class Model
 {
 	public:
@@ -37,8 +40,9 @@ class Model
 
 		enum ColorModeSettings
 		{
-			RGB_MODE,
+			SHADES_MODE,
 			RANDOM_MODE,
+			COLOR_MODE,
 			GRADIENT_MODE
 		};
 
@@ -51,8 +55,8 @@ class Model
 		int						_M_VerticesCount;
 		glm::mat4				_M_ModelMatrix;
 
-		bool					_M_ColorMode[3];
-		char					_M_ColorModeMask;					
+		bool					_M_ColorMode[NB_COLOR_SETTINGS];
+		char					_M_ColorModeMask;
 
 		// bool					_M_HasTexture;
 		// bool					_M_SmoothShadingEnabled;
