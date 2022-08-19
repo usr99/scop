@@ -7,17 +7,18 @@ TARGET	= scop
 CFLAGS	= -Wall -Wextra --std=c++11 -g # -Werror
 CC		= g++
 
-INC 	= -I ./include				\
-			-I ./libs/include		\
-			-I ./ftGraphics/include	\
+BREW_PATH = /Users/${USER}/.brew/opt/
+DEPENDENCIES = glfw glew
+DEPS_FULL_PATH = ${addprefix ${BREW_PATH}, ${DEPENDENCIES}}
+
+INC = ${addsuffix /include, ${addprefix -I, ${DEPS_FULL_PATH}}} -I include
+LIBS = ${addsuffix /lib, ${addprefix -L, ${DEPS_FULL_PATH}}} -lGLEW -lglfw -Llibs -limgui -framework OpenGL
 
 SRCDIR	= ./src/
 SRC		= scop.cpp Model.cpp parser.cpp ShaderProgram.cpp debug.cpp
 
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
-
-LIBS	= -L libs -lglfw3 -lGLEW -limgui -lGL -lpthread -ldl -lX11
 
 ##################################################
 #				COMPILATION RULES				 #

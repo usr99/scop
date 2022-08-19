@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <filesystem>
 
 #include "Model.hpp"
 #include "ShaderProgram.hpp"
@@ -27,6 +28,8 @@
 #define WIN_W 800.0f
 #define WIN_H 600.0f
 #define BACKGROUND_COLOR 0.404f, 0.631f, 0.624f, 1.0f
+
+namespace fs = std::__fs::filesystem;
 
 int main(int ac, char **av)
 {
@@ -48,11 +51,18 @@ int main(int ac, char **av)
 		/* Initialize the library */
 		if (!glfwInit())
 			throw std::runtime_error("GLFW initialization failed");
+		
+		/* 
+		** On MacOS implementation of GLFW, the function glfwInit() changes the working directory
+		** so we need to restore it afterwise
+		*/
+		fs::current_path("..");
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
+    	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // required on Mac
+ 
 		/* Create a windowed mode window and its OpenGL context */
 		window = glfwCreateWindow(WIN_W, WIN_H, "Scop", NULL, NULL);
 		if (!window)

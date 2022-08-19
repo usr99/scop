@@ -70,9 +70,11 @@ std::string
 ShaderProgram::_parseShader(const std::string &filepath)
 {
 	std::ifstream stream(filepath);
+	if (stream.fail())
+		throw std::runtime_error("Failed to load shader: " + filepath);
+	
 	std::string line;
 	std::stringstream ss;
-
 	while (getline(stream, line))
 		ss << line << '\n';
 	stream.close();
@@ -83,6 +85,7 @@ unsigned int
 ShaderProgram::_createShader(const std::string &vertexShader, const std::string &fragmentShader)
 {
 	GLCall(unsigned int program = glCreateProgram());
+
 	unsigned int vs = _compileShader(GL_VERTEX_SHADER, vertexShader);
 	unsigned int fs = _compileShader(GL_FRAGMENT_SHADER, fragmentShader);
 

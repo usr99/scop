@@ -1,8 +1,5 @@
 # Compiled Object files
-./objs
-
-ftGraphics/*.a
-ftGraphics/objs
+objs/*.o
 
 # Executables
 scop
@@ -11,4 +8,6 @@ scop
 # Other
 .vscode
 imgui.ini
-todo
+
+# temporary
+include/glm
