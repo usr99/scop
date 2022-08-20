@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/20 15:52:01 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/20 17:13:15 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,12 +107,12 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		handleMouseInputs(camera);
-
 		/* Create the new ImGui frame */
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+		handleMouseInputs(camera);
 
 		shader.setUniformMat4f("uCamera", proj * camera.getMatrix());
 		shader.setUniformMat4f("uModel", object.getMatrix());
@@ -145,5 +145,6 @@ void handleMouseInputs(ArcballCamera& camera)
 			camera.rotate(angle);
 			ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 		}
+		camera.zoom(ImGui::GetIO().MouseWheel);
 	}
 }

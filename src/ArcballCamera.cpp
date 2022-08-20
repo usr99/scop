@@ -6,18 +6,19 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:28:10 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/20 16:54:59 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/20 17:34:37 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ArcballCamera.hpp"
 
 ArcballCamera::ArcballCamera(const glm::vec3& eye)
-	: _M_Eye(eye), _M_LookAt(glm::vec3()), _M_UpVector(glm::vec3(0.f, 1.f, 0.f))
+	: _M_Eye(eye), _M_LookAt(glm::vec3()), _M_UpVector(glm::vec3(0.f, 1.f, 0.f)),
+		_M_Zoom(1.f)
 {
 	_updateViewMatrix();
 }
-#include <iostream>
+
 void
 ArcballCamera::rotate(glm::vec2 angle)
 {
@@ -47,7 +48,21 @@ ArcballCamera::rotate(glm::vec2 angle)
 }
 
 void
+ArcballCamera::zoom(float value)
+{
+	/*
+	** Zoom in or out based on the scrolling of the mouse wheel
+	** divide the value by 0.03 to avoid losing control of the zoom
+	** keep the zoom factor between 0.3 and 1.5 to keep the camera from going into the object
+	** or to keep the object from clipping out of the view frustrum
+	*/
+	_M_Zoom += value * 0.03f;
+	_M_Zoom = std::max(0.3f, std::min(1.5f, _M_Zoom));
+	_updateViewMatrix();
+}
+
+void
 ArcballCamera::_updateViewMatrix()
 {
-	_M_ViewMatrix = glm::lookAt(_M_Eye, _M_LookAt, _M_UpVector);
+	_M_ViewMatrix = glm::lookAt(_M_Eye / _M_Zoom, _M_LookAt, _M_UpVector);
 }
