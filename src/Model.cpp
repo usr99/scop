@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/19 22:46:56 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/20 17:49:44 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,23 +49,20 @@ Model::Model(const std::string& path)
 	/*
 	** Compute the translation vector to place the object at the center of the world space
 	** it also stores the most extreme coordinate (negative or not) to scale the object
-	** and keep it from going past the screen border
 	*/
 	glm::vec3 mean;
-	float extremum = 0;
+	float biggest = 0;
 	for (int i = 0; i < 3; i++)
 	{
 		mean[i] = -(obj.max[i] + obj.min[i]) / 2;
-		extremum = std::max(std::max(std::abs(obj.max[i]), std::abs(obj.min[i])), extremum);
+		biggest = std::max(std::max(std::abs(obj.max[i]), std::abs(obj.min[i])), biggest);
 	}
-	float scale_factor = 1;
-	if (extremum > 2)
-		scale_factor = 2 / extremum;
+	float scale_factor = 2 / biggest;
 	int i = 0;
 	for (auto vertex = obj.vertices.begin(); vertex != obj.vertices.end(); vertex++)
 	{
 		*vertex += mean[i];			// translate
-		*vertex *= scale_factor;	// scale
+		*vertex *= scale_factor;	// scale the vertex coordinate to fit the range [-2;2]
 		i = (i + 1) % 3;
 	}
 
