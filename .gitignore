@@ -8,6 +8,7 @@ scop
 # Other
 .vscode
 imgui.ini
+.DS_STORE
 
 # temporary
 include/glm

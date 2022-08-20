@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/15 00:40:30 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/19 21:41:16 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,18 @@ Model::Model(const std::string& path)
 	std::vector<float> vxBuffer(_M_VerticesCount * 12, 0.f);
 	std::vector<unsigned int> idxBuffer;
 	idxBuffer.reserve(_M_VerticesCount);
-	
+
+	/* Translate the object to the center of the world space */
+	glm::vec3 mean;
+	for (int i = 0; i < 3; i++)
+		mean[i] = -(obj.max[i] + obj.min[i]) / 2;
+	int i = 0;
+	for (auto vertex = obj.vertices.begin(); vertex != obj.vertices.end(); vertex++)
+	{
+		*vertex += mean[i];
+		i = (i + 1) % 3;
+	}
+
 	/*
 	** Convert obj formatted data
 	** In a .obj file, the same coordinates can be used multiple times with different texture coordinates and normals

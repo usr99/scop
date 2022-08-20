@@ -55,7 +55,13 @@ void parseVertex(ObjectInfo& obj, const SplitArray& values, int line)
 
     obj.vertices.reserve(obj.vertices.capacity() + 3);
     for (int i = 1 ; i < 4; i++)
-        obj.vertices.push_back(std::stof(values[i]) / w);
+	{
+        const float val = std::stof(values[i]) / w;
+		obj.vertices.push_back(val);
+
+		obj.max[i - 1] = std::max(val, obj.max[i - 1]);
+		obj.min[i - 1] = std::min(val, obj.min[i - 1]);
+	}
 }
 
 void parseTextureCoordinates(ObjectInfo& obj, const SplitArray& values, int line)
@@ -152,4 +158,6 @@ void ObjectInfo::debug() const
 			std::cout << face[i] << ((i % 3 == 2) ? ' ' : '/');
 		std::cout << '\n';
 	});
+
+	std::cout << "max: " << max << "\nmin: " << min << '\n';
 }

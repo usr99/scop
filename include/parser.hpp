@@ -17,12 +17,17 @@
 # include <vector>
 # include <string>
 
+# include "math.hpp"
+
 struct ObjectInfo
 {
 	std::vector<std::vector<unsigned int>>	faces;
 	std::vector<float>			            vertices;
 	std::vector<float>			            textures;
 	std::vector<float>			            normals;
+
+	vec3									max;
+	vec3									min;
 
 	void debug() const;
 };
