@@ -6,28 +6,11 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/19 21:39:28 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/20 14:07:43 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "GL/glew.h"
-#include "GLFW/glfw3.h"
-
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-
-#include <iostream>
-#include <algorithm>
-#include <filesystem>
-
-#include "Model.hpp"
-#include "ShaderProgram.hpp"
-#include "debug.hpp"
-
-#define WIN_W 800.0f
-#define WIN_H 600.0f
-#define BACKGROUND_COLOR 0.404f, 0.631f, 0.624f, 1.0f
+#include "scop.hpp"
 
 namespace fs = std::__fs::filesystem;
 
@@ -46,9 +29,6 @@ int main(int ac, char **av)
 			);
 		}
 
-		GLFWwindow* window;
-
-		/* Initialize the library */
 		if (!glfwInit())
 			throw std::runtime_error("GLFW initialization failed");
 		
@@ -62,8 +42,10 @@ int main(int ac, char **av)
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // required on Mac
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // no resize
  
-		/* Create a windowed mode window and its OpenGL context */
+		/* Create a window and its OpenGL context */
+		GLFWwindow* window;
 		window = glfwCreateWindow(WIN_W, WIN_H, "Scop", NULL, NULL);
 		if (!window)
 			throw std::runtime_error("Window creation failed");
@@ -74,76 +56,29 @@ int main(int ac, char **av)
 		if (glewInit() != GLEW_OK)
 			throw std::runtime_error("GLEW initialization failed");
 
-		GLCall(glEnable(GL_DEPTH_TEST));
-		GLCall(glClearColor(BACKGROUND_COLOR));
+		/* Setup ImGui */
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init("#version 330");
+		ImGui::StyleColorsDark();
 
+		GLCall(glEnable(GL_DEPTH_TEST)); // enable depth buffer
+		GLCall(glClearColor(BACKGROUND_COLOR)); // set background color
+
+		/*
+		** In OpenGL Core profile, there is no default vertex array object
+		** so we must create it
+		*/
 		unsigned int vao;
 		GLCall(glGenVertexArrays(1, &vao));
 		GLCall(glBindVertexArray(vao));
 
+		/* Load shaders and .obj model */
 		ShaderProgram shader("src/shaders/basic");
-		shader.bind();
-
-		/* Setup Dear ImGui context */
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-
-		/* Setup Platform/Renderer bindings */
-		ImGui_ImplGlfw_InitForOpenGL(window, true);
-		ImGui_ImplOpenGL3_Init("#version 330");
-
-		/* Setup Dear ImGui style */
-		ImGui::StyleColorsDark();
-
-		glm::mat4 proj = glm::perspective(glm::radians(45.0f), WIN_W / WIN_H, 0.1f, 50.0f);
-		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.0f, -5.0f));
-
 		Model object(av[1]);
-		float rotate[2] = { 0.0f };
-		float translate[3] = { 0.0f };
 
-		/* Loop until the user closes the window */
-		while (!glfwWindowShouldClose(window))
-		{
-			/* Render here */
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			/* Reset transformations */
-			object.rotate(-rotate[1], glm::vec3(0.0f, 1.0f, 0.0f));
-			object.rotate(-rotate[0], glm::vec3(1.0f, 0.0f, 0.0f));
-			object.translate(glm::vec3(-translate[0], -translate[1], -translate[2]));
-
-			/* Create the new ImGui frame */
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
-
-			/* Show space transformations panel */
-			ImGui::Begin("Debug panel");
-			ImGui::SliderFloat2("Rotate", rotate, 0.0f, 360.0f);
-			ImGui::SliderFloat3("Translate", translate, -3.0f, 3.0f);
-			ImGui::End();
-
-			/* Apply transformations and render */
-			object.translate(glm::vec3(translate[0], translate[1], translate[2]));
-			object.rotate(rotate[0], glm::vec3(1.0f, 0.0f, 0.0f));
-			object.rotate(rotate[1], glm::vec3(0.0f, 1.0f, 0.0f));
-			
-			shader.setUniformMat4f("uCamera", proj * view);
-			shader.setUniformMat4f("uModel", object.getMatrix());
-
-			object.showSettingsPanel();
-			object.render();
-
-			/* Render dear imgui into screen */
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-			/* Swap front and back buffers */
-			glfwSwapBuffers(window);
-			/* Poll for and process events */
-			glfwPollEvents();
-		}
+		renderingLoop(window, object, shader);
 	}
 	catch (const std::exception& e)
 	{
@@ -160,4 +95,54 @@ int main(int ac, char **av)
     glfwTerminate();
 
 	return !error ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
+{
+	glm::mat4 proj = glm::perspective(glm::radians(45.0f), WIN_W / WIN_H, 0.1f, 50.0f);
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.0f, -5.0f));
+
+	float rotate[2] = { 0.0f };
+	float translate[3] = { 0.0f };
+
+	/* Loop until the user closes the window */
+	while (!glfwWindowShouldClose(window))
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		/* Reset transformations */
+		object.rotate(-rotate[1], glm::vec3(0.0f, 1.0f, 0.0f));
+		object.rotate(-rotate[0], glm::vec3(1.0f, 0.0f, 0.0f));
+		object.translate(glm::vec3(-translate[0], -translate[1], -translate[2]));
+
+		/* Create the new ImGui frame */
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		/* Show space transformations panel */
+		ImGui::Begin("Debug panel");
+		ImGui::SliderFloat2("Rotate", rotate, 0.0f, 360.0f);
+		ImGui::SliderFloat3("Translate", translate, -3.0f, 3.0f);
+		ImGui::End();
+
+		object.translate(glm::vec3(translate[0], translate[1], translate[2]));
+		object.rotate(rotate[0], glm::vec3(1.0f, 0.0f, 0.0f));
+		object.rotate(rotate[1], glm::vec3(0.0f, 1.0f, 0.0f));
+
+		shader.setUniformMat4f("uCamera", proj * view);
+		shader.setUniformMat4f("uModel", object.getMatrix());
+
+		object.showSettingsPanel();
+		object.render();
+
+		/* Render dear imgui into screen */
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		/* Swap front and back buffers */
+		glfwSwapBuffers(window);
+		/* Poll for and process events */
+		glfwPollEvents();
+	}
 }

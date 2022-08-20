@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:36:27 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/12 19:43:13 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/20 14:05:35 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ class ShaderProgram
 {	
 	public:
 	
-		ShaderProgram(const std::string& filepath);
+		ShaderProgram(const std::string& filepath, bool bindAfterConstruction = true);
 		~ShaderProgram();
 
 		void bind() const;

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:37:56 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/12 19:41:40 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/20 14:05:52 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,14 @@
 #include "ShaderProgram.hpp"
 #include "debug.hpp"
 
-ShaderProgram::ShaderProgram(const std::string& filepath) :
+ShaderProgram::ShaderProgram(const std::string& filepath, bool bindAfterConstruction) :
 	_filepath(filepath)
 {
 	const std::string vertexSource = _parseShader(filepath + ".vs");
 	const std::string fragmentSource = _parseShader(filepath + ".fs");
 	_id = _createShader(vertexSource, fragmentSource);
+	if (bindAfterConstruction)
+		bind();
 }
 
 ShaderProgram::~ShaderProgram()
