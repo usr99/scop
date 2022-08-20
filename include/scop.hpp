@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 13:52:45 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/20 13:54:53 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/20 15:51:47 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 
 # include "Model.hpp"
 # include "ShaderProgram.hpp"
+# include "ArcballCamera.hpp"
 # include "debug.hpp"
 
 # define WIN_W 800.0f
@@ -32,5 +33,6 @@
 # define BACKGROUND_COLOR 0.404f, 0.631f, 0.624f, 1.0f
 
 void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader);
+void handleMouseInputs(ArcballCamera& camera);
 
 #endif

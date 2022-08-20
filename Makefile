@@ -15,7 +15,7 @@ INC = ${addsuffix /include, ${addprefix -I, ${DEPS_FULL_PATH}}} -I include
 LIBS = ${addsuffix /lib, ${addprefix -L, ${DEPS_FULL_PATH}}} -lGLEW -lglfw -Llibs -limgui -framework OpenGL
 
 SRCDIR	= ./src/
-SRC		= scop.cpp Model.cpp parser.cpp ShaderProgram.cpp debug.cpp
+SRC		= scop.cpp Model.cpp parser.cpp ShaderProgram.cpp ArcballCamera.cpp debug.cpp
 
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
