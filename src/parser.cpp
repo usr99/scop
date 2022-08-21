@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 05:55:20 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/10 20:00:45 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/21 13:42:10 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,8 @@ void parseFace(ObjectInfo& obj, const SplitArray& values, int line)
 				}
 				else if (index == 0)
 					throw std::invalid_argument("Bad syntax at line " + std::to_string(line) + ": Vertex index cannot be omitted");
+				else
+					obj.faces.back().push_back(0);
 			}
 			else
 				obj.faces.back().push_back(0);
