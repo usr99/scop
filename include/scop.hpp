@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 13:52:45 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/20 15:51:47 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/21 19:56:10 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,6 @@
 
 void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader);
 void handleMouseInputs(ArcballCamera& camera);
+void handleKeyboardInputs(bool* exitProgram);
 
 #endif

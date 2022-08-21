@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/21 13:03:21 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/21 19:55:45 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,8 +105,10 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 	LightSource light;
 
 	/* Loop until the user closes the window */
-	while (!glfwWindowShouldClose(window))
+	bool windowShouldClose = false;
+	while (!windowShouldClose)
 	{
+		windowShouldClose = glfwWindowShouldClose(window);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/* Create the new ImGui frame */
@@ -115,6 +117,7 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 		ImGui::NewFrame();
 
 		handleMouseInputs(camera);
+		handleKeyboardInputs(&windowShouldClose);
 
 		shader.setUniformMat4f("uCamera", proj * camera.getMatrix());
 		shader.setUniformMat4f("uModel", object.getMatrix());
@@ -152,4 +155,10 @@ void handleMouseInputs(ArcballCamera& camera)
 		}
 		camera.zoom(ImGui::GetIO().MouseWheel);
 	}
+}
+
+void handleKeyboardInputs(bool* exitProgram)
+{
+	if (ImGui::IsKeyDown(ImGuiKey_Escape))
+		*exitProgram = true;
 }
