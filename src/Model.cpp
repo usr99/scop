@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/20 17:52:46 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/21 19:48:08 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ Model::Model(const std::string& path)
 		throw std::invalid_argument(path + " not found");
 	ObjectInfo obj = loadObjectFile(file);
 	file.close();
-	
+
 	/* Allocate enough memory to contain all vertices */
 	for (auto face : obj.faces)
 		_M_VerticesCount += face.size() / 3;
@@ -57,20 +57,20 @@ Model::Model(const std::string& path)
 		mean[i] = -(obj.max[i] + obj.min[i]) / 2;
 		biggest = std::max(std::max(std::abs(obj.max[i]), std::abs(obj.min[i])), biggest);
 	}
-	float scale_factor = 2 / biggest;
-	int i = 0;
+	float scalingFactor = 2 / biggest;
+	int coordIndex = 0;
 	for (auto vertex = obj.vertices.begin(); vertex != obj.vertices.end(); vertex++)
 	{
-		*vertex += mean[i];			// translate
-		*vertex *= scale_factor;	// scale the vertex coordinate to fit the range [-2;2]
-		i = (i + 1) % 3;
+		*vertex += mean[coordIndex];		// translate
+		*vertex *= scalingFactor;			// scale the vertex coordinate to fit the range [-2;2]
+		coordIndex = (coordIndex + 1) % 3;	// switch between x, y and z coordinates
 	}
 
 	/*
 	** Convert obj formatted data
 	** In a .obj file, the same coordinates can be used multiple times with different texture coordinates and normals
 	** In a OpenGL VBO, each vertex is a unique combination of these attributes
-	** Thus we have to copy some of the .obj face to create our vertices
+	** Thus we have to copy some of the faces to create our vertices
 	*/
 	unsigned int vertexIndex = 0;
 	unsigned int faceIndex = 0;
@@ -79,8 +79,34 @@ Model::Model(const std::string& path)
 	{
 		bool isTriangle = (face.size() == 3 * 3);
 
+		/* Check that every vertex has a normal vector */
+		bool isMissingNormalVector = true;
+		for (size_t normalIndex = 2; normalIndex < face.size(); normalIndex += 3)
+		{
+			if (face[normalIndex] != 0)
+				isMissingNormalVector = false;
+		}
+
+		/*
+		** If that's not the case generate it
+		** 3 vertices make a plane, compute the perpendicular vector of this plane
+		** using the cross product
+		*/
+		if (isMissingNormalVector)
+		{
+			glm::vec3 points[3];
+			for (int i = 0; i < 3; i++)
+				std::copy_n(&obj.vertices[(face[i * 3] - 1) * 3], 3, &points[i][0]);
+			glm::vec3 normalVector = glm::cross(points[0] - points[1], points[0] - points[2]);
+			obj.normals.insert(obj.normals.end(), &normalVector.x, &normalVector.z + 1);
+		}
+
 		for (unsigned int i = 0; i < face.size(); i += 3)
 		{
+			/* Set the normal vector of the vertex if not already present */
+			if (face[i + 2] == 0)
+				face[i + 2] = obj.normals.size() / 3;
+			
 			/* Create a new vertex from the indices in the face component of the object file */
 			_insertVertexAttribute(vxBuffer, (_M_VerticesCount * 0 + vertexIndex) * 3, obj.vertices, face[i]);
 			_insertVertexAttribute(vxBuffer, (_M_VerticesCount * 1 + vertexIndex) * 3, obj.textures, face[i + 1]);
