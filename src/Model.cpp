@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/20 17:49:44 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/20 17:52:46 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ void
 Model::showSettingsPanel()
 {
 	ImGui::Begin("Color Settings");
-	ImGui::Checkbox("Add shades ?", _M_ColorMode + SHADES_MODE);
+	ImGui::Checkbox("Show triangles ?", _M_ColorMode + SHADES_MODE);
 	ImGui::BeginDisabled(!_M_ColorMode[SHADES_MODE]);
 		ImGui::Checkbox("Shuffle colors ?", _M_ColorMode + RANDOM_MODE);
 		ImGui::BeginDisabled(!_M_ColorMode[RANDOM_MODE]);
