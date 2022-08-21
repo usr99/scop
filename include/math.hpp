@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 19:40:35 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/12 20:11:17 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/21 13:05:32 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 # define _MATH_HPP_
 
 # include "Matrix.hpp"
+# include "Vector.hpp"
 
 # include <glm/glm.hpp>
 # include <glm/gtc/matrix_transform.hpp>
+# include <glm/gtx/rotate_vector.hpp>
 
 typedef Matrix<4, 4, float> mat4;
 typedef Vector<3, float> vec3;

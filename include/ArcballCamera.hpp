@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:19:47 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/20 17:05:08 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/21 12:50:20 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ class ArcballCamera
 
 		ArcballCamera(const glm::vec3& eye);
 		
-		inline glm::mat4 getMatrix() { return _M_ViewMatrix; };
+		inline glm::mat4 getMatrix() const { return _M_ViewMatrix; };
 
 		void rotate(glm::vec2 angle);
 		void zoom(float value);
