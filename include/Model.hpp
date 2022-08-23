@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/23 13:04:59 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 15:28:54 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <vector>
 
 # include "math.hpp"
+# include "ColorPalette.hpp"
 
 # define NB_COLOR_SETTINGS 4
 # define NB_COLOR_SETTINGS_COMBINATIONS 6
@@ -38,17 +39,7 @@ class Model
 
 	private:
 
-		enum ColorModeSettings
-		{
-			SHADES_MODE,
-			RANDOM_MODE,
-			COLOR_MODE,
-			GRADIENT_MODE
-		};
-
 		void _insertVertexAttribute(std::vector<float>& buffer, unsigned int offset, std::vector<float>& from, unsigned int index);
-		char _getCurrentColorModeMask() const;
-		void _generateColorPalette();
 
 		unsigned int 	_M_VertexBuffer;
 		unsigned int 	_M_IndexBuffer;
@@ -56,8 +47,7 @@ class Model
 		unsigned int	_M_IndicesCount;
 		glm::mat4		_M_ModelMatrix;
 
-		bool			_M_ColorMode[NB_COLOR_SETTINGS];
-		char			_M_ColorModeMask;
+		ColorPalette	_M_Palette;
 
 		// bool			_M_HasTexture;
 		// bool			_M_SmoothShadingEnabled;
