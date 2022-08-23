@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/22 19:43:15 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 13:04:59 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ class Model
 			GRADIENT_MODE
 		};
 
-		void _insertVertexAttribute(std::vector<float>& buffer,int offset, std::vector<float>& from, int index);
+		void _insertVertexAttribute(std::vector<float>& buffer, unsigned int offset, std::vector<float>& from, unsigned int index);
 		char _getCurrentColorModeMask() const;
 		void _generateColorPalette();
 

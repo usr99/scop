@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/22 22:33:49 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 13:04:38 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,10 +230,13 @@ Model::scale(float factor)
 void
 Model::_insertVertexAttribute(
 	std::vector<float>& buffer,	// vertex buffer where the data is inserted
-	int offset, 				// starting position of the inserted data
+	unsigned int offset, 				// starting position of the inserted data
 	std::vector<float>& from,	// source array from which the vertices are copied
-	int index					// starting position from where to copy
+	unsigned int index					// starting position from where to copy
 ) {
+	if (index > from.size() / 3)
+		throw std::runtime_error("Invalid face index found in .obj file");
+
 	if (index != 0)
 	{
 		index--;
