@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/21 19:48:08 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/22 22:33:49 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ Model::Model(const std::string& path)
 	*/
 	unsigned int vertexIndex = 0;
 	unsigned int faceIndex = 0;
+	unsigned int lastIndex = 0;
 
 	for (auto face : obj.faces)
 	{
@@ -115,9 +116,42 @@ Model::Model(const std::string& path)
 				idxBuffer.push_back(vertexIndex);
 			vertexIndex++;
 		}
-		faceIndex++;
 
-		// if (!isTriangle)
+		/*
+		** With non-triangle polygons, it is needed to divide them into triangles
+		** faces indices are used to create triangles inside the polygon
+		** it is done in a way similar to the GL_TRIANGLE_STRIP rendering mode
+		*/
+		if (!isTriangle)
+		{
+			std::deque<unsigned int> indices({ 1, 0, 2 }); // first triangle is 1 0 2
+			const int nbTriangles = face.size() / 3 - 2;
+			int direction = -1;
+
+			for (int i = 0; i < nbTriangles; i++)
+			{
+				/*
+				** Insert indices into the buffer
+				** each time lastIndex is added because until now we worked with indices starting from 0
+				** but we need to take into account previous faces
+				*/
+				std::for_each(indices.begin(), indices.end(), [&](unsigned int value) {
+					idxBuffer.push_back(value + lastIndex);
+				});
+				indices.pop_front(); // the last two indices are kept for the next triangle
+
+				/* The third index is equal to the first one +/-1 */
+				int nextIndex = indices[0] + direction;
+				if (nextIndex < 0) // index == 0 - 1
+					nextIndex = face.size() / 3 - 1;
+
+				indices.push_back(nextIndex);
+				direction *= -1;
+			}
+		}
+
+		faceIndex++;
+		lastIndex += face.size() / 3;
 	}
 
 	/* Create VBOs from converted data */
@@ -125,9 +159,10 @@ Model::Model(const std::string& path)
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, _M_VertexBuffer));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, vxBuffer.size() * sizeof(float), vxBuffer.data(), GL_STATIC_DRAW));
 
+	_M_IndicesCount = idxBuffer.size();
 	GLCall(glGenBuffers(1, &_M_IndexBuffer));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _M_IndexBuffer));
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxBuffer.size() * sizeof(unsigned int), idxBuffer.data(), GL_STATIC_DRAW));
+	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, _M_IndicesCount * sizeof(unsigned int), idxBuffer.data(), GL_STATIC_DRAW));
 
 	/*
 	** Set vertex layout
@@ -156,7 +191,7 @@ Model::render()
 		_generateColorPalette();
 		_M_ColorModeMask = colorMask;
 	}
-	GLCall(glDrawElements(GL_TRIANGLES, _M_VerticesCount, GL_UNSIGNED_INT, 0));
+	GLCall(glDrawElements(GL_TRIANGLES, _M_IndicesCount, GL_UNSIGNED_INT, 0));
 }
 
 void
@@ -266,7 +301,8 @@ Model::_generateColorPalette()
 		};
 	}
 
-	for (size_t i = 0; i < palette.capacity(); i += 3)
+	const size_t capacity = palette.capacity();
+	for (size_t i = 0; i < capacity; i += 3)
 	{
 		std::array<float, 3> rgb = {0.f};
 		generateColorFunc(rgb);
@@ -275,7 +311,7 @@ Model::_generateColorPalette()
 			palette.insert(palette.end(), rgb.begin(), rgb.end());
 		else // write the color for the whole triangle
 		{
-			for (int j = 0; j < 3; j++)
+			for (int j = 0; j < 3 && palette.size() <= capacity; j++)
 				palette.insert(palette.end(), rgb.begin(), rgb.end());
 			i += 6;
 		}
@@ -290,6 +326,6 @@ Model::_generateColorPalette()
 		GL_ARRAY_BUFFER,
 		sizeof(float) * _M_VerticesCount * 3 * 3,
 		sizeof(float) * _M_VerticesCount * 3,
-		palette.data())
-	);
+		palette.data()
+	));
 }

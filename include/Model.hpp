@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/15 00:29:49 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/22 19:43:15 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,16 +50,17 @@ class Model
 		char _getCurrentColorModeMask() const;
 		void _generateColorPalette();
 
-		unsigned int 			_M_VertexBuffer;
-		unsigned int 			_M_IndexBuffer;
-		int						_M_VerticesCount;
-		glm::mat4				_M_ModelMatrix;
+		unsigned int 	_M_VertexBuffer;
+		unsigned int 	_M_IndexBuffer;
+		unsigned int	_M_VerticesCount;
+		unsigned int	_M_IndicesCount;
+		glm::mat4		_M_ModelMatrix;
 
-		bool					_M_ColorMode[NB_COLOR_SETTINGS];
-		char					_M_ColorModeMask;
+		bool			_M_ColorMode[NB_COLOR_SETTINGS];
+		char			_M_ColorModeMask;
 
-		// bool					_M_HasTexture;
-		// bool					_M_SmoothShadingEnabled;
+		// bool			_M_HasTexture;
+		// bool			_M_SmoothShadingEnabled;
 };
 
 #endif
