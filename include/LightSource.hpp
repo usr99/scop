@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/21 12:44:19 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/21 13:02:36 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 17:07:29 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,12 @@ class LightSource
 
 		LightSource();
 
-		glm::vec3 getColor() const;
 		glm::vec3 getPosition() const;
 
 		void showSettingsPanel();
 
 	private:
 
-		glm::vec3	_M_Color;
 		glm::vec3	_M_InitialPosition;
 		float		_M_Angle;
 };

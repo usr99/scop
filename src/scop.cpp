@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/21 19:55:45 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 17:07:54 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,6 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 
 		shader.setUniformMat4f("uCamera", proj * camera.getMatrix());
 		shader.setUniformMat4f("uModel", object.getMatrix());
-		shader.setUniformVec3f("uLightColor", light.getColor());
 		shader.setUniformVec3f("uLightPosition", light.getPosition());
 
 		light.showSettingsPanel();

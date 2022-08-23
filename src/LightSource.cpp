@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/21 12:51:22 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/21 13:12:57 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 17:07:44 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,7 @@
 #include "imgui/imgui.h"
 
 LightSource::LightSource()
-	: _M_Color(glm::vec3(1.f)), _M_InitialPosition(glm::vec3(0.f, 3.f, -3.f)), _M_Angle(0.f) {}
-
-glm::vec3
-LightSource::getColor() const
-{
-	return _M_Color;
-}
+	: _M_InitialPosition(glm::vec3(0.f, 3.f, -3.f)), _M_Angle(0.f) {}
 
 glm::vec3
 LightSource::getPosition() const
@@ -32,7 +26,6 @@ void
 LightSource::showSettingsPanel()
 {
 	ImGui::Begin("Lightings");
-	ImGui::ColorPicker3("Color", &_M_Color[0]);
 	ImGui::SliderFloat("Angle", &_M_Angle, 0.f, 360.f);
 	ImGui::End();
 }
