@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/23 15:32:38 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 16:56:05 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@
 #include "debug.hpp"
 
 Model::Model(const std::string& path)
-	: _M_VerticesCount(0), _M_ModelMatrix(1.0f)
+	: _M_VerticesCount(0), _M_ModelMatrix(1.0f),
+		_M_RenderingMode(GL_TRIANGLES), _M_PointSize(1)
 {
 	/* Check file extension */
 	size_t extensionIndex = path.find(".obj", path.length() - 4);
@@ -187,14 +188,25 @@ void
 Model::render()
 {
 	_M_Palette.update();
-	GLCall(glDrawElements(GL_TRIANGLES, _M_IndicesCount, GL_UNSIGNED_INT, 0));
+	if (_M_RenderingMode == GL_POINTS)
+		GLCall(glPointSize(_M_PointSize));
+	GLCall(glDrawElements(_M_RenderingMode, _M_IndicesCount, GL_UNSIGNED_INT, 0));
 }
 
 void
 Model::showSettingsPanel()
 {
 	ImGui::Begin("Settings");
+	
 	_M_Palette.showSettings();
+
+	ImGui::RadioButton("Triangles", &_M_RenderingMode, GL_TRIANGLES);
+	ImGui::RadioButton("Wireframe", &_M_RenderingMode, GL_LINE_STRIP);
+	ImGui::RadioButton("Dots", &_M_RenderingMode, GL_POINTS);
+	ImGui::BeginDisabled(_M_RenderingMode != GL_POINTS);
+		ImGui::SliderInt("size", &_M_PointSize, 1, 10);
+	ImGui::EndDisabled();
+
 	ImGui::End();
 }
 

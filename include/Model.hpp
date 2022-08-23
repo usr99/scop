@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/23 15:28:54 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 16:53:20 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ class Model
 		glm::mat4		_M_ModelMatrix;
 
 		ColorPalette	_M_Palette;
+		int				_M_RenderingMode;
+		int				_M_PointSize;
 
 		// bool			_M_HasTexture;
 		// bool			_M_SmoothShadingEnabled;
