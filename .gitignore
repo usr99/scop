@@ -5,6 +5,9 @@ objs/*.o
 scop
 *.out
 
+# Models
+resources/models/*.obj
+
 # Other
 .vscode
 imgui.ini

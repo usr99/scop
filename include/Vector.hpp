@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/05 15:20:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/11 20:10:00 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/22 23:45:51 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <vector>
 # include <algorithm>
 # include <cmath>
+# include <fstream>
 
 typedef unsigned short length_t;
 
@@ -129,9 +130,10 @@ struct Vector
 	
 		friend std::ostream& operator<<(std::ostream &os, const Vector&v)
 		{
-			os << '[';
-			std::for_each(v._mData.begin(), v._mData.end() - 1, [&os](T val)
-						  { os << val << ", "; });
+			os << ']';
+			std::for_each(v._mData.begin(), v._mData.end() - 1, [&os](T val) {
+				os << val << ", ";
+			});
 			os << v._mData.back() << ']';
 			return os;
 		}
