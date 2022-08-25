@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/24 09:13:58 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/25 16:14:56 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 #include "debug.hpp"
 
 Model::Model(const std::string& path)
-	: _M_VerticesCount(0), _M_ModelMatrix(1.0f),
+	: _M_VerticesCount(0), _M_RotationAngle(0.f),
 		_M_RenderingMode(GL_TRIANGLES), _M_PointSize(1)
 {
 	/* Check file extension */
@@ -207,21 +207,22 @@ Model::showSettingsPanel()
 }
 
 void
-Model::translate(const glm::vec3& direction)
+Model::rotate(float angle)
 {
-	_M_ModelMatrix = glm::translate(_M_ModelMatrix, direction);
+	_M_RotationAngle += glm::radians(angle);
+	if (_M_RotationAngle > 2 * M_PI)
+		_M_RotationAngle = 0.f;
 }
 
-void
-Model::rotate(float angle, const glm::vec3& axis)
+glm::mat4
+Model::getMatrix() const
 {
-	_M_ModelMatrix = glm::rotate(_M_ModelMatrix, glm::radians(angle), axis);
-}
+	glm::mat4 matrix(1.f);
+	const glm::vec3 axis(0.f, 1.f, 0.f);
 
-void
-Model::scale(float factor)
-{
-	_M_ModelMatrix = glm::scale(_M_ModelMatrix, glm::vec3(factor, factor, factor));
+	if (_M_RotationAngle != 0.f)
+		matrix = glm::rotate(matrix, _M_RotationAngle, axis);
+	return matrix;
 }
 
 void

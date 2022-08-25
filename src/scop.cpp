@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/24 20:02:10 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/25 16:12:32 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ int main(int ac, char **av)
 void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 {
 	glm::mat4 proj = glm::perspective(glm::radians(45.0f), WIN_W / WIN_H, 0.1f, 50.0f);
-	ArcballCamera camera(glm::vec3(0.f, 0.f, -5.f));
+	ArcballCamera camera;
 	LightSource light;
 
 	bool freeOrbitEnabled = false;
@@ -124,17 +124,15 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 		handleMouseInputs(camera, freeOrbitEnabled);
 		handleKeyboardInputs(&windowShouldClose);
 
-		/* Rotate the model on its Y-axis */
 		if (!freeOrbitEnabled)
 		{
+			/* Rotate the model on its Y-axis */
 			const auto now = std::chrono::system_clock::now();
 			const auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTime).count();
 			const float angle = (elapsedTime * 360.f) / 10000.f; // a full rotation takes 10 seconds
-			object.rotate(angle, glm::vec3(0.f, 1.f, 0.f));
+			object.rotate(angle);
 			lastTime = now;
 		}
-		else
-			lastTime = std::chrono::system_clock::now(); // avoid big rotations when free orbit is toggled off
 
 		shader.setUniformMat4f("uCamera", proj * camera.getMatrix());
 		shader.setUniformMat4f("uModel", object.getMatrix());
@@ -143,7 +141,11 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 		ImGui::Begin("Settings");
 		object.showSettingsPanel();
 		light.showSettingsPanel();
-		ImGui::Checkbox("toggle free orbit", &freeOrbitEnabled);
+		if (ImGui::Checkbox("toggle free orbit", &freeOrbitEnabled))
+		{
+			camera.reset();
+			lastTime = std::chrono::system_clock::now(); // avoid big rotations when free orbit is toggled off
+		}
 		ImGui::End();
 		object.render();
 
@@ -152,9 +154,9 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		/* Swap front and back buffers */
-		glfwSwapBuffers(window); // mandatory, right ?
+		glfwSwapBuffers(window);
 		/* Poll for and process events */
-		glfwPollEvents(); // but is it useful ?
+		glfwPollEvents();
 	}
 }
 
@@ -162,18 +164,19 @@ void handleMouseInputs(ArcballCamera& camera, bool isFreeOrbitEnabled)
 {
 	if (ImGui::IsMousePosValid() && !ImGui::IsAnyItemActive())
 	{
-		if (isFreeOrbitEnabled)
+		if (ImGui::IsMouseDragging(ImGuiMouseButton_Left))
 		{
-			if (ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+			ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+			if (isFreeOrbitEnabled)
 			{
-				ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 				glm::vec2 angle;
-
 				angle.x = delta.x * (2 * M_PI / WIN_W);
 				angle.y = delta.y * (M_PI / WIN_H);
 				camera.rotate(angle);
-				ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			}
+			else
+				camera.translate(delta.x / -100.f, delta.y / -100.f); // divide by 100 to slow the movement
+			ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 		}
 		camera.zoom(ImGui::GetIO().MouseWheel);
 	}

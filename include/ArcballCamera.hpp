@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:19:47 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/24 20:04:08 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/24 21:45:52 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,19 +15,22 @@
 
 # include "math.hpp"
 
-# define ZOOM_MIN 0.3f
-# define ZOOM_MAX 2.0f
+# define INIT_POSITION 	glm::vec3(0.f, 0.f, -5.f)
+# define ZOOM_MIN 		0.3f
+# define ZOOM_MAX 		2.0f
 
 class ArcballCamera
 {
 	public:
 
-		ArcballCamera(const glm::vec3& eye);
+		ArcballCamera();
 		
 		inline glm::mat4 getMatrix() const { return _M_ViewMatrix; };
 
 		void rotate(glm::vec2 angle);
+		void translate(float x, float y);
 		void zoom(float value);
+		void reset();
 
 	private:
 
@@ -40,6 +43,7 @@ class ArcballCamera
 		glm::vec3	_M_Eye;
 		glm::vec3	_M_LookAt;
 		glm::vec3	_M_UpVector;
+		glm::vec3	_M_TranslationVector;
 		float		_M_Zoom;
 };
 

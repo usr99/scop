@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/23 16:53:20 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/25 16:14:50 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,9 @@ class Model
 		void render();
 		void showSettingsPanel();
 
-		void translate(const glm::vec3& direction);
-		void rotate(float angle, const glm::vec3& axis);
-		void scale(float factor);
+		void rotate(float angle);
 
-		inline const glm::mat4& getMatrix() const { return _M_ModelMatrix; };
+		glm::mat4 getMatrix() const;
 
 	private:
 
@@ -45,7 +43,7 @@ class Model
 		unsigned int 	_M_IndexBuffer;
 		unsigned int	_M_VerticesCount;
 		unsigned int	_M_IndicesCount;
-		glm::mat4		_M_ModelMatrix;
+		float			_M_RotationAngle;
 
 		ColorPalette	_M_Palette;
 		int				_M_RenderingMode;

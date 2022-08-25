@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/21 12:44:19 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/23 17:07:29 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/25 13:55:02 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ class LightSource
 
 	private:
 
-		glm::vec3	_M_InitialPosition;
-		float		_M_Angle;
+		const glm::vec3	_M_InitialPosition;
+		float			_M_Angle;
 };
 
 #endif

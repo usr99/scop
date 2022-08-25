@@ -6,15 +6,15 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:28:10 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/24 20:04:24 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/25 16:13:09 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ArcballCamera.hpp"
 
-ArcballCamera::ArcballCamera(const glm::vec3& eye)
-	: _M_Eye(eye), _M_LookAt(glm::vec3()), _M_UpVector(glm::vec3(0.f, 1.f, 0.f)),
-		_M_Zoom(1.f)
+ArcballCamera::ArcballCamera()
+	: _M_Eye(INIT_POSITION), _M_LookAt(glm::vec3()), _M_UpVector(glm::vec3(0.f, 1.f, 0.f)),
+		_M_TranslationVector(0.f), _M_Zoom(1.f)
 {
 	_updateViewMatrix();
 }
@@ -48,6 +48,18 @@ ArcballCamera::rotate(glm::vec2 angle)
 }
 
 void
+ArcballCamera::translate(float x, float y)
+{
+	/*
+	** Coordinates are divided by the zoom factor
+	** because of the perspective, the further you are from the object
+	** the more the camera needs to move to travel the same distance on the screen
+	*/
+	_M_TranslationVector.x += (x / _M_Zoom);
+	_M_TranslationVector.y += (y / _M_Zoom);
+}
+
+void
 ArcballCamera::zoom(float value)
 {
 	/*
@@ -62,7 +74,15 @@ ArcballCamera::zoom(float value)
 }
 
 void
+ArcballCamera::reset()
+{
+	_M_Eye = INIT_POSITION;
+	_M_TranslationVector = glm::vec3();
+}
+
+void
 ArcballCamera::_updateViewMatrix()
 {
 	_M_ViewMatrix = glm::lookAt(_M_Eye / _M_Zoom, _M_LookAt, _M_UpVector);
+	_M_ViewMatrix = glm::translate(_M_ViewMatrix, _M_TranslationVector);
 }
