@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 13:52:45 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/21 19:56:10 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/24 09:18:17 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@
 # define BACKGROUND_COLOR 0.404f, 0.631f, 0.624f, 1.0f
 
 void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader);
-void handleMouseInputs(ArcballCamera& camera);
+void handleMouseInputs(ArcballCamera& camera, bool isFreeOrbitEnabled);
 void handleKeyboardInputs(bool* exitProgram);
 
 #endif

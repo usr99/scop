@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/21 12:51:22 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/23 17:07:44 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/24 19:52:58 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,5 @@ LightSource::getPosition() const
 void
 LightSource::showSettingsPanel()
 {
-	ImGui::Begin("Lightings");
 	ImGui::SliderFloat("Angle", &_M_Angle, 0.f, 360.f);
-	ImGui::End();
 }

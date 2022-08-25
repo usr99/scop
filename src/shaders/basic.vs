@@ -15,7 +15,7 @@ uniform mat4 uModel;
 void main()
 {
 	currentPosition = vec3(uModel * vec4(aPosition, 1.0));
-	normal = aNormal;
+	normal = (uModel * vec4(aNormal, 1.0)).xyz;
 	color = vec4(aColor, 1.0);
 
 	gl_Position = uCamera * vec4(currentPosition, 1.0);

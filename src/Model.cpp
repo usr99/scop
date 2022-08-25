@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/23 16:56:05 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/24 09:13:58 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,8 +196,6 @@ Model::render()
 void
 Model::showSettingsPanel()
 {
-	ImGui::Begin("Settings");
-	
 	_M_Palette.showSettings();
 
 	ImGui::RadioButton("Triangles", &_M_RenderingMode, GL_TRIANGLES);
@@ -206,8 +204,6 @@ Model::showSettingsPanel()
 	ImGui::BeginDisabled(_M_RenderingMode != GL_POINTS);
 		ImGui::SliderInt("size", &_M_PointSize, 1, 10);
 	ImGui::EndDisabled();
-
-	ImGui::End();
 }
 
 void

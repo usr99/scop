@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:28:10 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/20 17:34:37 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/24 20:04:24 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ ArcballCamera::zoom(float value)
 	** or to keep the object from clipping out of the view frustrum
 	*/
 	_M_Zoom += value * 0.03f;
-	_M_Zoom = std::max(0.3f, std::min(1.5f, _M_Zoom));
+	_M_Zoom = std::max(ZOOM_MIN, std::min(ZOOM_MAX, _M_Zoom));
 	_updateViewMatrix();
 }
 

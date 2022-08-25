@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:19:47 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/21 12:50:20 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/24 20:04:08 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 # define _ARCBALL_CAMERA_HPP_
 
 # include "math.hpp"
+
+# define ZOOM_MIN 0.3f
+# define ZOOM_MAX 2.0f
 
 class ArcballCamera
 {
