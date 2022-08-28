@@ -8,6 +8,7 @@ layout(location = 3) in vec3 aColor;
 out vec3 currentPosition;
 out vec3 normal;
 out vec4 color;
+out vec2 texCoord;
 
 uniform mat4 uCamera;
 uniform mat4 uModel;
@@ -17,6 +18,7 @@ void main()
 	currentPosition = vec3(uModel * vec4(aPosition, 1.0));
 	normal = (uModel * vec4(aNormal, 1.0)).xyz;
 	color = vec4(aColor, 1.0);
+	texCoord = aTexture.xy;
 
 	gl_Position = uCamera * vec4(currentPosition, 1.0);
 }

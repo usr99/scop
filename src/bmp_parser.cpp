@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 15:06:04 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/28 15:57:25 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/28 16:38:09 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,18 +23,16 @@ BMPimage::BMPimage(const std::string& filename)
 
 	ifs.read(reinterpret_cast<char*>(&file), sizeof(FileHeader));
 	if (file.type != 0x4D42) // should be "BM"
-		throw std::runtime_error(filename + ": incorrect file type");
+		throw std::invalid_argument(filename + ": incorrect file type");
 
 	ifs.read(reinterpret_cast<char*>(&info), sizeof(InfoHeader));
 
-	std::cout << info.size << '\n';
-
 	if (info.size != 40 && info.size != 108 && info.size != 124)
-		throw std::runtime_error(filename + ": incorrect DIB format");
+		throw std::invalid_argument(filename + ": incorrect DIB format");
 	if (info.bpp != 24 && info.bpp != 32)
-		throw std::runtime_error(filename + ": only 24 and 32 bits images are supported");
+		throw std::invalid_argument(filename + ": only 24 and 32 bits images are supported");
 	if (info.compression != 0 && info.compression != 3)
-		throw std::runtime_error(filename + ": data compression is not supported");
+		throw std::invalid_argument(filename + ": data compression is not supported");
 	_M_IsReversed = (info.height < 0);
 	info.height = std::abs(info.height);
 
@@ -44,8 +42,6 @@ BMPimage::BMPimage(const std::string& filename)
 	const uint8_t bytesPerPixel = info.bpp / 8;
 	const size_t stride = info.width * bytesPerPixel;
 	const uint8_t padding = stride % 4;
-
-	std::cout << _M_IsReversed << '\n';
 
 	for (int y = 0; y < info.height; y++)
 	{
@@ -60,7 +56,6 @@ BMPimage::BMPimage(const std::string& filename)
 		}
 		ifs.seekg(padding, ifs.cur);
 	}
-
 	ifs.close();
 }
 

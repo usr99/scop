@@ -3,10 +3,13 @@
 in vec3 currentPosition;
 in vec3 normal;
 in vec4 color;
+in vec2 texCoord;
 
 out vec4 fragColor;
 
 uniform vec3 uLightPosition;
+uniform sampler2D uTexture;
+uniform bool uTextureEnabled;
 
 void main()
 {
@@ -16,5 +19,13 @@ void main()
 	float ambient = 1.0;
 	float diffuse = max(dot(normalVector, lightDirection), 0.0);
 
-	fragColor = color * (diffuse + ambient);
+	if (uTextureEnabled)
+	{
+		vec4 texColor = texture(uTexture, texCoord);
+		fragColor = texColor * (diffuse + ambient);
+	}
+	else
+	{
+		fragColor = color * (diffuse + ambient);
+	}
 }

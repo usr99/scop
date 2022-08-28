@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/28 14:53:35 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/28 16:59:21 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include "scop.hpp"
 #include "LightSource.hpp"
+#include "bmp_parser.hpp"
 
 int main(int ac, char **av)
 {
@@ -97,8 +98,25 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 	ArcballCamera camera(WIN_W, WIN_H);
 	LightSource light;
 
-	bool freeOrbitEnabled = false;
+	bool freeOrbitEnabled = true;
 	auto lastTime = std::chrono::system_clock::now();
+	bool isTextureEnabled = true;
+
+	BMPimage img("resources/textures/block.bmp");
+	unsigned int textureId;
+	GLCall(glGenTextures(1, &textureId));
+	GLCall(glBindTexture(GL_TEXTURE_2D, textureId));
+	GLCall(glActiveTexture(GL_TEXTURE0));
+
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.info.width, img.info.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, img.data()));
+
+	shader.setUniform1i("uTexture", 0);
+	shader.setUniform1i("uTextureEnabled", isTextureEnabled);
 
 	/* Loop until the user closes the window */
 	bool windowShouldClose = false;
@@ -137,6 +155,8 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 			camera.reset();
 			lastTime = std::chrono::system_clock::now(); // avoid big rotations when free orbit is toggled off
 		}
+		if (ImGui::Checkbox("toggle texture", &isTextureEnabled))
+			shader.setUniform1i("uTextureEnabled", isTextureEnabled);
 		ImGui::End();
 		object.render();
 
