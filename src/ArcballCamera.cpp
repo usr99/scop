@@ -6,14 +6,15 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:28:10 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/25 16:13:09 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/28 14:57:13 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ArcballCamera.hpp"
 
-ArcballCamera::ArcballCamera()
-	: _M_Eye(INIT_POSITION), _M_LookAt(glm::vec3()), _M_UpVector(glm::vec3(0.f, 1.f, 0.f)),
+ArcballCamera::ArcballCamera(float width, float height)
+	: 	_M_ProjectionMatrix(glm::perspective(glm::radians(45.0f), width / height, 0.1f, 50.0f)),
+		_M_Eye(INIT_POSITION), _M_LookAt(glm::vec3()), _M_UpVector(glm::vec3(0.f, 1.f, 0.f)),
 		_M_TranslationVector(0.f), _M_Zoom(1.f)
 {
 	_updateViewMatrix();
@@ -55,8 +56,21 @@ ArcballCamera::translate(float x, float y)
 	** because of the perspective, the further you are from the object
 	** the more the camera needs to move to travel the same distance on the screen
 	*/
+	const glm::vec2 save = _M_TranslationVector;
 	_M_TranslationVector.x += (x / _M_Zoom);
 	_M_TranslationVector.y += (y / _M_Zoom);
+	_updateViewMatrix();
+
+	/* Compute the projection of the origin on the window */
+	const glm::vec4 origin(0.f, 0.f, 0.f, 1.f);
+	const glm::vec4 projected = getMatrix() * origin;
+
+	/* Check that the origin is not out of the window borders */
+	for (int i = 0; i < 2; i++)
+	{
+		if (projected[i] < -projected.w || projected[i] > projected.w)
+			_M_TranslationVector[i] = save[i]; // restore previous coordinates
+	}
 }
 
 void
@@ -78,6 +92,12 @@ ArcballCamera::reset()
 {
 	_M_Eye = INIT_POSITION;
 	_M_TranslationVector = glm::vec3();
+}
+
+glm::mat4
+ArcballCamera::getMatrix() const
+{
+	return _M_ProjectionMatrix * _M_ViewMatrix;
 }
 
 void

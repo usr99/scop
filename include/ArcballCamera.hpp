@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:19:47 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/24 21:45:52 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/28 14:47:22 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,14 @@ class ArcballCamera
 {
 	public:
 
-		ArcballCamera();
+		ArcballCamera(float width, float height);
 		
-		inline glm::mat4 getMatrix() const { return _M_ViewMatrix; };
-
 		void rotate(glm::vec2 angle);
 		void translate(float x, float y);
 		void zoom(float value);
 		void reset();
+
+		glm::mat4 getMatrix() const;
 
 	private:
 
@@ -39,6 +39,7 @@ class ArcballCamera
 		inline glm::vec3 _getRightVector() { return glm::transpose(_M_ViewMatrix)[0]; }
 		void _updateViewMatrix();
 
+		glm::mat4	_M_ProjectionMatrix;
 		glm::mat4	_M_ViewMatrix;
 		glm::vec3	_M_Eye;
 		glm::vec3	_M_LookAt;

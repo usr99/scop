@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/25 16:12:32 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/28 14:53:35 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 #include "scop.hpp"
 #include "LightSource.hpp"
-
-namespace fs = std::__fs::filesystem;
 
 int main(int ac, char **av)
 {
@@ -35,12 +33,6 @@ int main(int ac, char **av)
 		if (!glfwInit())
 			throw std::runtime_error("GLFW initialization failed");
 		
-		/* 
-		** On MacOS implementation of GLFW, the function glfwInit() changes the working directory
-		** so we need to restore it afterwise
-		*/
-		fs::current_path("..");
-
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -102,8 +94,7 @@ int main(int ac, char **av)
 
 void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 {
-	glm::mat4 proj = glm::perspective(glm::radians(45.0f), WIN_W / WIN_H, 0.1f, 50.0f);
-	ArcballCamera camera;
+	ArcballCamera camera(WIN_W, WIN_H);
 	LightSource light;
 
 	bool freeOrbitEnabled = false;
@@ -134,7 +125,7 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 			lastTime = now;
 		}
 
-		shader.setUniformMat4f("uCamera", proj * camera.getMatrix());
+		shader.setUniformMat4f("uCamera", camera.getMatrix());
 		shader.setUniformMat4f("uModel", object.getMatrix());
 		shader.setUniformVec3f("uLightPosition", light.getPosition());
 

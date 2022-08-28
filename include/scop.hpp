@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 13:52:45 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/24 09:18:17 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/28 14:54:20 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define _SCOP_HPP_
 
 # include <iostream>
-# include <filesystem>
 
 # include "GL/glew.h"
 # include "GLFW/glfw3.h"

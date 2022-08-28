@@ -2,7 +2,7 @@
 #			GLOBAL VARIABLES DEFINITION			 #
 ##################################################
 
-TARGET	= scop
+TARGET	= scop.out
 
 CFLAGS	= -Wall -Wextra --std=c++11 -g # -Werror
 CC		= g++
