@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/25 16:14:56 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/29 12:57:11 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,18 @@ Model::Model(const std::string& path)
 	unsigned int faceIndex = 0;
 	unsigned int lastIndex = 0;
 
+	/* Generate texture coordinates if not provided in the file */
+	if (obj.textures.size() == 0)
+	{
+		float coordinates[12] = {
+			1.f, 0.f, 0.f,
+			1.f, 1.f, 0.f,
+			0.f, 1.f, 0.f,
+			0.f, 0.f, 0.f
+		};
+		obj.textures.insert(obj.textures.end(), coordinates, coordinates + 12);
+	}
+
 	for (auto face : obj.faces)
 	{
 		/* Check that every vertex has a normal vector */
@@ -106,12 +118,18 @@ Model::Model(const std::string& path)
 
 		bool isTriangle = (face.size() == 3 * 3);
 		const float greyColor = (static_cast<float>(std::rand()) / RAND_MAX) * 0.4f + 0.1f;
+		unsigned int textureIndex = 0;
+		
 		for (unsigned int i = 0; i < face.size(); i += 3)
 		{
 			/* Set the normal vector of the vertex if not already present */
 			if (face[i + 2] == 0)
 				face[i + 2] = obj.normals.size() / 3;
-			
+			/* same for texture coordinates */
+			textureIndex = textureIndex % 4 + 1;
+			if (face[i + 1] == 0)
+				face[i + 1] = textureIndex;
+
 			/* Create a new vertex from the indices in the face component of the object file */
 			_insertVertexAttribute(vxBuffer, (_M_VerticesCount * 0 + vertexIndex) * 3, obj.vertices, face[i]);
 			_insertVertexAttribute(vxBuffer, (_M_VerticesCount * 1 + vertexIndex) * 3, obj.textures, face[i + 1]);
