@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:37:56 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/21 12:49:32 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/29 13:11:34 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,12 @@ void
 ShaderProgram::setUniform1i(const std::string& name, int value)
 {
 	GLCall(glUniform1i(_getUniformLocation(name), value));
+}
+
+void
+ShaderProgram::setUniform1f(const std::string& name, float value)
+{
+	GLCall(glUniform1f(_getUniformLocation(name), value));
 }
 
 void

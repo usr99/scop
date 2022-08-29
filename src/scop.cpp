@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/28 16:59:21 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/29 13:30:10 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,11 +98,13 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 	ArcballCamera camera(WIN_W, WIN_H);
 	LightSource light;
 
-	bool freeOrbitEnabled = true;
-	auto lastTime = std::chrono::system_clock::now();
-	bool isTextureEnabled = true;
+	bool freeOrbitEnabled = false;
+	auto timeLastRotation = std::chrono::system_clock::now();
+	auto timeLastTextureFade = std::chrono::system_clock::now();
+	float textureOpacity = 0.f;
+	bool isTextureEnabled = false;
 
-	BMPimage img("resources/textures/block.bmp");
+	BMPimage img("resources/textures/TRU256.bmp");
 	unsigned int textureId;
 	GLCall(glGenTextures(1, &textureId));
 	GLCall(glBindTexture(GL_TEXTURE_2D, textureId));
@@ -114,9 +116,7 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
 	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.info.width, img.info.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, img.data()));
-
 	shader.setUniform1i("uTexture", 0);
-	shader.setUniform1i("uTextureEnabled", isTextureEnabled);
 
 	/* Loop until the user closes the window */
 	bool windowShouldClose = false;
@@ -131,21 +131,29 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 		ImGui::NewFrame();
 
 		handleMouseInputs(camera, freeOrbitEnabled);
-		handleKeyboardInputs(&windowShouldClose);
+		handleKeyboardInputs(isTextureEnabled, windowShouldClose);
 
 		if (!freeOrbitEnabled)
 		{
 			/* Rotate the model on its Y-axis */
-			const auto now = std::chrono::system_clock::now();
-			const auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTime).count();
-			const float angle = (elapsedTime * 360.f) / 10000.f; // a full rotation takes 10 seconds
+			const float angle = (getDurationFrom(timeLastRotation) * 360.f) / 10000.f; // a full rotation takes 10 seconds
 			object.rotate(angle);
-			lastTime = now;
+		}
+		if (isTextureEnabled)
+		{
+			textureOpacity += getDurationFrom(timeLastTextureFade) / 2000.f;
+			textureOpacity = std::min(1.f, textureOpacity);
+		}
+		else
+		{
+			textureOpacity -= getDurationFrom(timeLastTextureFade) / 1000.f;
+			textureOpacity = std::max(0.f, textureOpacity);
 		}
 
 		shader.setUniformMat4f("uCamera", camera.getMatrix());
 		shader.setUniformMat4f("uModel", object.getMatrix());
 		shader.setUniformVec3f("uLightPosition", light.getPosition());
+		shader.setUniform1f("uTextureAlpha", textureOpacity);
 
 		ImGui::Begin("Settings");
 		object.showSettingsPanel();
@@ -153,10 +161,8 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 		if (ImGui::Checkbox("toggle free orbit", &freeOrbitEnabled))
 		{
 			camera.reset();
-			lastTime = std::chrono::system_clock::now(); // avoid big rotations when free orbit is toggled off
+			timeLastRotation = std::chrono::system_clock::now(); // avoid big rotations when free orbit is toggled off
 		}
-		if (ImGui::Checkbox("toggle texture", &isTextureEnabled))
-			shader.setUniform1i("uTextureEnabled", isTextureEnabled);
 		ImGui::End();
 		object.render();
 
@@ -169,6 +175,14 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 		/* Poll for and process events */
 		glfwPollEvents();
 	}
+}
+
+long long getDurationFrom(std::chrono::system_clock::time_point& from)
+{
+	const auto now = std::chrono::system_clock::now();
+	const auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - from).count();
+	from = now;
+	return elapsedTime;
 }
 
 void handleMouseInputs(ArcballCamera& camera, bool isFreeOrbitEnabled)
@@ -193,8 +207,11 @@ void handleMouseInputs(ArcballCamera& camera, bool isFreeOrbitEnabled)
 	}
 }
 
-void handleKeyboardInputs(bool* exitProgram)
+void handleKeyboardInputs(bool& isTextureEnabled, bool& exitProgram)
 {
 	if (ImGui::IsKeyDown(ImGuiKey_Escape))
-		*exitProgram = true;
+		exitProgram = true;
+
+	if (ImGui::IsKeyPressed(ImGuiKey_T))
+		isTextureEnabled = !isTextureEnabled;
 }

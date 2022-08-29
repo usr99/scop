@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 13:52:45 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/28 14:54:20 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/29 13:23:16 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,8 @@
 # define BACKGROUND_COLOR 0.404f, 0.631f, 0.624f, 1.0f
 
 void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader);
+long long getDurationFrom(std::chrono::system_clock::time_point& from);
 void handleMouseInputs(ArcballCamera& camera, bool isFreeOrbitEnabled);
-void handleKeyboardInputs(bool* exitProgram);
+void handleKeyboardInputs(bool& isTextureEnabled, bool& exitProgram);
 
 #endif

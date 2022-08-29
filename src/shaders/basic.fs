@@ -9,7 +9,7 @@ out vec4 fragColor;
 
 uniform vec3 uLightPosition;
 uniform sampler2D uTexture;
-uniform bool uTextureEnabled;
+uniform float uTextureAlpha;
 
 void main()
 {
@@ -19,13 +19,6 @@ void main()
 	float ambient = 1.0;
 	float diffuse = max(dot(normalVector, lightDirection), 0.0);
 
-	if (uTextureEnabled)
-	{
-		vec4 texColor = texture(uTexture, texCoord);
-		fragColor = texColor * (diffuse + ambient);
-	}
-	else
-	{
-		fragColor = color * (diffuse + ambient);
-	}
+	vec4 texColor = texture(uTexture, texCoord);
+	fragColor = (color * (1 - uTextureAlpha) + texColor * uTextureAlpha) * (diffuse + ambient);
 }
