@@ -1,19 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   bmp_parser.cpp                                     :+:      :+:    :+:   */
+/*   BMPimage.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 15:06:04 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/28 16:38:09 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/29 17:00:43 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdexcept>
 #include <fstream>
 #include <iostream>
-#include "bmp_parser.hpp"
+#include "BMPimage.hpp"
 
 BMPimage::BMPimage(const std::string& filename)
 {

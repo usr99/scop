@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   bmp_parser.hpp                                     :+:      :+:    :+:   */
+/*   BMPimage.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 14:59:56 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/28 15:28:38 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/29 17:00:40 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef _BMP_PARSER_HPP_
-# define _BMP_PARSER_HPP_
+#ifndef _BMP_IMAGE_HPP_
+# define _BMP_IMAGE_HPP_
 
 # include <vector>
 # include <cstdint>

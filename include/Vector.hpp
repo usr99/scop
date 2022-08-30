@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/05 15:20:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/22 23:45:51 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/30 14:05:29 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,7 @@ struct Vector
 	
 		friend std::ostream& operator<<(std::ostream &os, const Vector&v)
 		{
-			os << ']';
+			os << '[';
 			std::for_each(v._mData.begin(), v._mData.end() - 1, [&os](T val) {
 				os << val << ", ";
 			});
