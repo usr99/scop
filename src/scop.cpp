@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/29 13:30:10 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/30 17:28:24 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include "scop.hpp"
 #include "LightSource.hpp"
-#include "bmp_parser.hpp"
+#include "BMPimage.hpp"
 
 int main(int ac, char **av)
 {

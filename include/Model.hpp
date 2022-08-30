@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/25 16:14:50 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/30 17:24:39 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,7 @@
 
 # include "math.hpp"
 # include "ColorPalette.hpp"
-
-# define NB_COLOR_SETTINGS 4
-# define NB_COLOR_SETTINGS_COMBINATIONS 6
+# include "Object.hpp"
 
 class Model
 {
@@ -37,20 +35,18 @@ class Model
 
 	private:
 
-		void _insertVertexAttribute(std::vector<float>& buffer, unsigned int offset, std::vector<float>& from, unsigned int index);
+		void _insertVertexAttribute(std::vector<float>& buffer, unsigned int offset, std::vector<glm::vec3>& from, unsigned int index);
+
+		Object			_M_ObjectInfo;
 
 		unsigned int 	_M_VertexBuffer;
 		unsigned int 	_M_IndexBuffer;
-		unsigned int	_M_VerticesCount;
 		unsigned int	_M_IndicesCount;
-		float			_M_RotationAngle;
 
 		ColorPalette	_M_Palette;
+		float			_M_RotationAngle;
 		int				_M_RenderingMode;
 		int				_M_PointSize;
-
-		// bool			_M_HasTexture;
-		// bool			_M_SmoothShadingEnabled;
 };
 
 #endif

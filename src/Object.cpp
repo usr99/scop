@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 05:55:20 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/30 15:51:24 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/30 17:53:25 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,7 @@ Object::_parsePolygon(const std::string &line, const std::vector<indices_t> &ind
 		const std::string block(line, it->first, it->second);
 		auto elements = _split(block, '/', true);
 
+		vertexCount++;
 		groups.back().polygons.back().emplace_back();
 		for (unsigned int i = 0; i < 3; i++)
 		{
