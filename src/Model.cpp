@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/30 17:49:30 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/01 17:15:42 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <ctime>
+#include <map>
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -71,9 +72,11 @@ Model::Model(const std::string& path)
 		_M_ObjectInfo.textures.insert(_M_ObjectInfo.textures.end(), coordinates, coordinates + 4);
 	}
 
-	for (auto group : _M_ObjectInfo.groups)
+	for (auto group = _M_ObjectInfo.groups.begin(); group != _M_ObjectInfo.groups.end(); group++)
 	{
-		for (auto polygon : group.polygons)
+		/* Generate face normals for the polygons missing them */
+		std::map<unsigned int, std::list<unsigned int*>> storage;
+		for (auto& polygon : group->polygons)
 		{
 			/* Check that every vertex has a normal vector */
 			bool isMissingNormalVector = true;
@@ -93,19 +96,43 @@ Model::Model(const std::string& path)
 				glm::vec3 points[3];
 				for (int i = 0; i < 3; i++)
 					std::copy_n(&_M_ObjectInfo.vertices[(polygon[i].position() - 1)], 1, &points[i]);
-				glm::vec3 normalVector = glm::cross(points[0] - points[1], points[0] - points[2]);
+				glm::vec3 normalVector = glm::normalize(glm::cross(points[0] - points[1], points[0] - points[2]));
 				_M_ObjectInfo.normals.push_back(normalVector);
+			
+				for (auto& vertex : polygon)
+				{
+					vertex.normal() = _M_ObjectInfo.normals.size(); // set the normal index to the newly generated vector
+					if (group->enabled) // save a pointer to the index to compute smooth shading later
+						storage[vertex.position()].push_back(vertex.data() + 2);
+				}
 			}
+		}
 
+		if (group->enabled) // smooth shading enabled
+		{
+			for (auto vertex = storage.begin(); vertex != storage.end(); vertex++)
+			{
+				/* Compute the average of all the face normals the vertex belong to */
+				glm::vec3 smoothed(0.f);
+				for (auto index = vertex->second.begin(); index != vertex->second.end(); index++)
+					smoothed += _M_ObjectInfo.normals[**index - 1];
+				smoothed = glm::normalize(smoothed);
+
+				/* Set this new normal vector for the vertex */
+				_M_ObjectInfo.normals.push_back(smoothed);
+				for (auto index = vertex->second.begin(); index != vertex->second.end(); index++)
+					**index = _M_ObjectInfo.normals.size();
+			}
+		}
+
+		for (auto polygon : group->polygons)
+		{
 			bool isTriangle = (polygon.size() == 3);
 			const float greyColor = (static_cast<float>(std::rand()) / RAND_MAX) * 0.4f + 0.1f;
 			unsigned int textureIndex = 0;
 
 			for (unsigned int i = 0; i < polygon.size(); i++)
 			{
-				/* Set the normal vector of the vertex if not already present */
-				if (polygon[i].normal() == 0)
-					polygon[i].normal() = _M_ObjectInfo.normals.size();
 				/* same for texture coordinates */
 				textureIndex = textureIndex % 4 + 1;
 				if (polygon[i].uv() == 0)
@@ -115,6 +142,7 @@ Model::Model(const std::string& path)
 				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 0 + vertexIndex) * 3, _M_ObjectInfo.vertices, polygon[i].position());
 				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 1 + vertexIndex) * 3, _M_ObjectInfo.textures, polygon[i].uv());
 				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 2 + vertexIndex) * 3, _M_ObjectInfo.normals, polygon[i].normal());
+				
 				_M_Palette.push(greyColor);
 				if (isTriangle)
 					idxBuffer.push_back(vertexIndex);
@@ -181,6 +209,8 @@ Model::Model(const std::string& path)
 		GLCall(glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 0, (const char*)(offset)));
 		offset += _M_ObjectInfo.vertexCount * 3 * sizeof(float);
 	}
+
+	_M_ObjectInfo.debug();
 }
 
 void

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/30 17:28:24 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/01 14:40:46 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 	float textureOpacity = 0.f;
 	bool isTextureEnabled = false;
 
-	BMPimage img("resources/textures/TRU256.bmp");
+	BMPimage img("resources/textures/block.bmp");
 	unsigned int textureId;
 	GLCall(glGenTextures(1, &textureId));
 	GLCall(glBindTexture(GL_TEXTURE_2D, textureId));
