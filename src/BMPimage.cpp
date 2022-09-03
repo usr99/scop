@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 15:06:04 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/29 17:00:43 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/02 20:06:25 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 #include <fstream>
 #include <iostream>
 #include "BMPimage.hpp"
+#include "parser.hpp"
 
 BMPimage::BMPimage(const std::string& filename)
 {
+	checkFileExtension(filename, ".bmp");
 	std::ifstream ifs(filename, std::ios::binary);
 	if (ifs.fail())
 		throw std::runtime_error(filename + ": failed to open image");

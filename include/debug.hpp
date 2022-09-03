@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/08 04:07:07 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/08 04:10:31 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/03 10:13:22 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <csignal>
 # include "GL/glew.h"
+# include "Object.hpp"
 
 /* OpenGL debug */
 # define ASSERT(x) if (!(x)) raise(SIGTRAP);
@@ -24,5 +25,9 @@
 
 void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
+
+/* Parser debug */
+void debug(const Object& obj);
+void debug(const Material& mtl);
 
 #endif

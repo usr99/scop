@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/01 17:15:42 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/03 10:35:34 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ Model::Model(const std::string& path)
 	:	_M_ObjectInfo(path),
 		_M_RotationAngle(0.f), _M_RenderingMode(GL_TRIANGLES), _M_PointSize(1)
 {
+	debug(_M_ObjectInfo);
+
 	/* Initialize RNG which is needed to generate faces colors */
 	std::srand(time(nullptr));
 
@@ -209,8 +211,6 @@ Model::Model(const std::string& path)
 		GLCall(glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 0, (const char*)(offset)));
 		offset += _M_ObjectInfo.vertexCount * 3 * sizeof(float);
 	}
-
-	_M_ObjectInfo.debug();
 }
 
 void
