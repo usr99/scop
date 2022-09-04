@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 12:58:08 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 13:20:38 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,6 +157,7 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 		shader.setUniformMat4f("uCamera", camera.getMatrix());
 		shader.setUniformMat4f("uModel", object.getMatrix());
 		shader.setUniformVec3f("uLightPosition", light.getPosition());
+		shader.setUniformVec3f("uCameraPosition", camera.getPosition());
 		shader.setUniform1f("uTextureAlpha", textureOpacity);
 
 		ImGui::Begin("Settings");

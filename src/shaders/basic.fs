@@ -8,6 +8,7 @@ in vec2 texCoord;
 out vec4 fragColor;
 
 uniform vec3 uLightPosition;
+uniform vec3 uCameraPosition;
 uniform sampler2D uTexture;
 uniform float uTextureAlpha;
 
@@ -31,10 +32,20 @@ void main()
 	float ambient = 1.0;
 	float diffuse = max(dot(normalVector, lightDirection), 0.0);
 
+	float specularLight = 0.5;
+	vec3 viewDirection = normalize(uCameraPosition - currentPosition);
+	vec3 reflectionDirection = reflect(-lightDirection, normal);
+	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0), shininess / 10);
+	float specular = specAmount * specularLight;
+
 	vec4 texColor = texture(uTexture, texCoord);
 	vec4 objectColor = (color * (1 - uTextureAlpha) + texColor * uTextureAlpha);
-	vec4 lightColor = ambientColor * ambient + diffuseColor * diffuse;
-	
+	vec4 lightColor = diffuseColor * diffuse;
+	if (illum > 0u)
+		lightColor += ambientColor * ambient;
+	if (illum > 1u)
+		lightColor += specularColor * specular;
+
 	fragColor = objectColor * lightColor;
 	fragColor.a = opacity;
 }

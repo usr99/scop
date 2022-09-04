@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:28:10 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/28 14:57:13 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 13:24:18 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,12 @@ glm::mat4
 ArcballCamera::getMatrix() const
 {
 	return _M_ProjectionMatrix * _M_ViewMatrix;
+}
+
+glm::vec3
+ArcballCamera::getPosition() const
+{
+	return _M_Eye;
 }
 
 void
