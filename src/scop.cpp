@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 12:26:35 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 12:58:08 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ int main(int ac, char **av)
 		ImGui::StyleColorsDark();
 
 		GLCall(glEnable(GL_DEPTH_TEST)); // enable depth buffer
-		GLCall(glClearColor(BACKGROUND_COLOR)); // set background color
 		GLCall(glEnable(GL_BLEND)); // enable blending
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)); // set blending behavior
 		GLCall(glDisable(GL_CULL_FACE)); // disable face culling
@@ -100,6 +99,7 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 {
 	ArcballCamera camera(WIN_W, WIN_H);
 	LightSource light;
+	vec3 background({ 0.1f, 0.1f, 0.1f });
 
 	bool freeOrbitEnabled = false;
 	auto timeLastRotation = std::chrono::system_clock::now();
@@ -126,7 +126,8 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 	while (!windowShouldClose)
 	{
 		windowShouldClose = glfwWindowShouldClose(window);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		GLCall(glClearColor(background.x(), background.y(), background.z(), 1.f)); // set background color
+		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 		/* Create the new ImGui frame */
 		ImGui_ImplOpenGL3_NewFrame();
@@ -166,6 +167,7 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 			camera.reset();
 			timeLastRotation = std::chrono::system_clock::now(); // avoid big rotations when free orbit is toggled off
 		}
+		ImGui::ColorEdit3("Background Color", (float*)&background);
 		ImGui::End();
 		object.render();
 
