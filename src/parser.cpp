@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/02 19:52:33 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/03 10:42:09 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/03 23:36:49 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,6 @@ LineElements split(const std::string& line, char delimiter, bool allowEmptyLines
 	}
 	return split;	
 }
-
-/*
-- Add material indices to VBO
-- Set materials array as uniform
-- Adapt shader to manage materials
-*/
 
 void loadMaterialLibrary(const std::string& filename, MaterialLibrary& lib)
 {

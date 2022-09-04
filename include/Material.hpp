@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/02 19:28:20 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/03 10:43:54 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 12:28:22 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,11 @@
 # include <map>
 # include "math.hpp"
 
+# define MAX_MATERIALS 128
+
 struct Material
 {
-	Material(unsigned int id);
+	Material(unsigned int id = 0);
 
 	unsigned int id;
 
@@ -32,6 +34,20 @@ struct Material
 	unsigned int illuminationModel; // 0-2
 
 	std::string texture;
+
+	struct Uniform
+	{
+		vec4 ambient;
+		vec4 diffuse;
+		vec4 specular;
+
+		float shininess;
+		float refraction;
+		float opacity;
+		unsigned int illum;
+	};
+
+	Uniform getUniformData() const;
 };
 
 #endif

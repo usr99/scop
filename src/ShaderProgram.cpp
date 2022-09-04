@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:37:56 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/29 13:11:34 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/03 14:10:08 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,12 @@ ShaderProgram::setUniform1i(const std::string& name, int value)
 }
 
 void
+ShaderProgram::setUniform1ui(const std::string& name, unsigned int value)
+{
+	GLCall(glUniform1ui(_getUniformLocation(name), value));
+}
+
+void
 ShaderProgram::setUniform1f(const std::string& name, float value)
 {
 	GLCall(glUniform1f(_getUniformLocation(name), value));
@@ -69,6 +75,11 @@ ShaderProgram::setUniformVec3f(const std::string& name, const glm::vec3& value)
 	GLCall(glUniform3f(_getUniformLocation(name), value.x, value.y, value.z));
 }
 
+void
+ShaderProgram::setUniformVec3f(const std::string& name, const vec3& value)
+{
+	GLCall(glUniform3f(_getUniformLocation(name), value.x(), value.y(), value.z()));
+}
 
 void
 ShaderProgram::setUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
@@ -80,6 +91,12 @@ void
 ShaderProgram::setUniformMat4f(const std::string& name, const glm::mat4& matrix)
 {
 	GLCall(glUniformMatrix4fv(_getUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
+}
+
+void
+ShaderProgram::setUniformBlock(const std::string& name, unsigned int binding)
+{
+	GLCall(glUniformBlockBinding(_id, _getUniformBlockIndex(name), binding));
 }
 
 std::string
@@ -153,6 +170,20 @@ ShaderProgram::_getUniformLocation(const std::string& name)
 		return _uniformLocationCache[name];
 
 	GLCall(int location = glGetUniformLocation(_id, name.c_str()));
+	if (location == -1)
+		std::cout << "Warning: uniform '" << name << "' doesn't exist !" << std::endl;
+	else
+		_uniformLocationCache[name] = location;
+	return location;
+}
+
+int
+ShaderProgram::_getUniformBlockIndex(const std::string& name)
+{
+	if (_uniformLocationCache.find(name) != _uniformLocationCache.end())
+		return _uniformLocationCache[name];
+
+	GLCall(int location = glGetUniformBlockIndex(_id, name.c_str()));
 	if (location == -1)
 		std::cout << "Warning: uniform '" << name << "' doesn't exist !" << std::endl;
 	else

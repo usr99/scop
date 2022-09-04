@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/01 14:40:46 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 12:26:35 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,10 @@ int main(int ac, char **av)
 
 		GLCall(glEnable(GL_DEPTH_TEST)); // enable depth buffer
 		GLCall(glClearColor(BACKGROUND_COLOR)); // set background color
-
+		GLCall(glEnable(GL_BLEND)); // enable blending
+		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)); // set blending behavior
+		GLCall(glDisable(GL_CULL_FACE)); // disable face culling
+		
 		/*
 		** In OpenGL Core profile, there is no default vertex array object
 		** so we must create it
@@ -72,7 +75,7 @@ int main(int ac, char **av)
 
 		/* Load shaders and .obj model */
 		ShaderProgram shader("src/shaders/basic");
-		Model object(av[1]);
+		Model object(av[1], shader);
 
 		renderingLoop(window, object, shader);
 	}

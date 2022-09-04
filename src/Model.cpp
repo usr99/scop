@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/03 10:35:34 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 12:28:25 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,10 @@
 #include "Model.hpp"
 #include "debug.hpp"
 
-Model::Model(const std::string& path)
+Model::Model(const std::string& path, ShaderProgram& shader)
 	:	_M_ObjectInfo(path),
 		_M_RotationAngle(0.f), _M_RenderingMode(GL_TRIANGLES), _M_PointSize(1)
 {
-	debug(_M_ObjectInfo);
-
 	/* Initialize RNG which is needed to generate faces colors */
 	std::srand(time(nullptr));
 
@@ -144,7 +142,8 @@ Model::Model(const std::string& path)
 				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 0 + vertexIndex) * 3, _M_ObjectInfo.vertices, polygon[i].position());
 				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 1 + vertexIndex) * 3, _M_ObjectInfo.textures, polygon[i].uv());
 				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 2 + vertexIndex) * 3, _M_ObjectInfo.normals, polygon[i].normal());
-				
+				// insert material index
+
 				_M_Palette.push(greyColor);
 				if (isTriangle)
 					idxBuffer.push_back(vertexIndex);
@@ -202,15 +201,33 @@ Model::Model(const std::string& path)
 	/*
 	** Set vertex layout
 	** the attributes are tightly packed in the buffer, as specified by the stride of 0
-	** respectively vertex coordinates, textures coordinates, normals and colors
+	** respectively vertex coordinates, textures coordinates, normals, colors and material indices
 	*/
 	size_t offset = 0;
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		GLCall(glEnableVertexAttribArray(i));
 		GLCall(glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 0, (const char*)(offset)));
 		offset += _M_ObjectInfo.vertexCount * 3 * sizeof(float);
 	}
+	GLCall(glEnableVertexAttribArray(4));
+	GLCall(glVertexAttribPointer(4, 1, GL_UNSIGNED_INT, GL_FALSE, 0, (const char*)(offset)));
+
+	/* Create a buffer with materials data */
+	Material::Uniform mtl;
+	if (_M_ObjectInfo.materials.size())
+		mtl = _M_ObjectInfo.materials.begin()->second.getUniformData();
+	else
+		mtl = Material().getUniformData();
+
+	/* Create a Uniform Buffer Object (UBO) with this data */
+	GLCall(glGenBuffers(1, &_M_UniformBuffer));
+	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, _M_UniformBuffer));
+	GLCall(glBufferData(GL_UNIFORM_BUFFER, sizeof(Material::Uniform), &mtl, GL_STATIC_DRAW));
+	
+	/* Bind the UBO and the shader to the binding index 0 */
+	shader.setUniformBlock("uMaterials", 0);
+	GLCall(glBindBufferBase(GL_UNIFORM_BUFFER, 0, _M_UniformBuffer));
 }
 
 void

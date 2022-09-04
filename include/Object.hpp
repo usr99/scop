@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 05:50:53 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/03 10:06:49 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/03 12:19:04 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,15 +50,15 @@ struct Object
 
 		Object(const std::string& filename);
 	
-		std::list<ShadingGroup>					groups;
-		std::vector<glm::vec3>					vertices;
-		std::vector<glm::vec3>					textures;
-		std::vector<glm::vec3>					normals;
+		std::list<ShadingGroup>	groups;
+		std::vector<glm::vec3>	vertices;
+		std::vector<glm::vec3>	textures;
+		std::vector<glm::vec3>	normals;
 		MaterialLibrary			materials;
 	
-		unsigned int							vertexCount;
-		vec3									max;
-		vec3									min;
+		unsigned int			vertexCount;
+		vec3					max;
+		vec3					min;
 
 	private:
 	

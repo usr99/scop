@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/30 17:24:39 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/03 12:41:38 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,13 @@
 # include "math.hpp"
 # include "ColorPalette.hpp"
 # include "Object.hpp"
+# include "ShaderProgram.hpp"
 
 class Model
 {
 	public:
 
-		Model(const std::string& path);
+		Model(const std::string& path, ShaderProgram& shader);
 
 		void render();
 		void showSettingsPanel();
@@ -41,6 +42,7 @@ class Model
 
 		unsigned int 	_M_VertexBuffer;
 		unsigned int 	_M_IndexBuffer;
+		unsigned int	_M_UniformBuffer;
 		unsigned int	_M_IndicesCount;
 
 		ColorPalette	_M_Palette;

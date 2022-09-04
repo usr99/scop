@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/08 04:04:57 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/03 10:15:06 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/03 11:13:30 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,13 +58,14 @@ void debug(const Object& obj)
 
 	for (auto mtl = obj.materials.begin(); mtl != obj.materials.end(); mtl++)
 	{
-		std::cout << mtl->first << ":\n\n";
+		std::cout << mtl->first << ":\n";
 		debug(mtl->second);
 	}
 }
 
 void debug(const Material& mtl)
 {
+	std::cout << "ID " << mtl.id << '\n';
 	std::cout << "Ka " << mtl.ambientColor << '\n';
 	std::cout << "Kd " << mtl.diffuseColor << '\n';
 	std::cout << "Ks " << mtl.specularColor << '\n';
@@ -74,5 +75,5 @@ void debug(const Material& mtl)
 	std::cout << "opacity " << mtl.opacity << '\n';
 	std::cout << "illumation model " << mtl.illuminationModel << '\n';
 	
-	std::cout << "texture " << mtl.texture << '\n';
+	std::cout << "texture " << mtl.texture << "\n\n";
 }
