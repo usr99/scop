@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:19:47 by mamartin          #+#    #+#             */
-/*   Updated: 2022/08/28 14:47:22 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 13:08:06 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 # define INIT_POSITION 	glm::vec3(0.f, 0.f, -5.f)
 # define ZOOM_MIN 		0.3f
-# define ZOOM_MAX 		2.0f
+# define ZOOM_MAX 		3.0f
 
 class ArcballCamera
 {
