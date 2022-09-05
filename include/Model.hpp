@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/03 12:41:38 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 22:33:16 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 # include "ColorPalette.hpp"
 # include "Object.hpp"
 # include "ShaderProgram.hpp"
+
+# define MAX_MATERIALS 128
 
 class Model
 {

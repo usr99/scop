@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 13:20:38 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 22:49:32 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,7 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 		}
 		else
 		{
-			textureOpacity -= getDurationFrom(timeLastTextureFade) / 1000.f;
+			textureOpacity -= getDurationFrom(timeLastTextureFade) / 2000.f;
 			textureOpacity = std::max(0.f, textureOpacity);
 		}
 

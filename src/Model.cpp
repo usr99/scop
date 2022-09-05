@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 12:28:25 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 22:51:12 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ Model::Model(const std::string& path, ShaderProgram& shader)
 	/* Initialize RNG which is needed to generate faces colors */
 	std::srand(time(nullptr));
 
-	std::vector<float> vxBuffer(_M_ObjectInfo.vertexCount * 12, 0.f);
+	std::vector<float> vxBuffer(_M_ObjectInfo.vertexCount * 13, 0.f);
 	std::vector<unsigned int> idxBuffer;
 	idxBuffer.reserve(_M_ObjectInfo.vertexCount);
 	_M_Palette.reserve(_M_ObjectInfo.vertexCount * 3);
@@ -142,7 +142,7 @@ Model::Model(const std::string& path, ShaderProgram& shader)
 				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 0 + vertexIndex) * 3, _M_ObjectInfo.vertices, polygon[i].position());
 				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 1 + vertexIndex) * 3, _M_ObjectInfo.textures, polygon[i].uv());
 				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 2 + vertexIndex) * 3, _M_ObjectInfo.normals, polygon[i].normal());
-				// insert material index
+				vxBuffer[_M_ObjectInfo.vertexCount * 4 * 3 + vertexIndex] = (polygon.mtl ? polygon.mtl->id + 1: 0);
 
 				_M_Palette.push(greyColor);
 				if (isTriangle)
@@ -211,19 +211,22 @@ Model::Model(const std::string& path, ShaderProgram& shader)
 		offset += _M_ObjectInfo.vertexCount * 3 * sizeof(float);
 	}
 	GLCall(glEnableVertexAttribArray(4));
-	GLCall(glVertexAttribPointer(4, 1, GL_UNSIGNED_INT, GL_FALSE, 0, (const char*)(offset)));
+	GLCall(glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 0, (const char*)(offset)));
 
 	/* Create a buffer with materials data */
-	Material::Uniform mtl;
-	if (_M_ObjectInfo.materials.size())
-		mtl = _M_ObjectInfo.materials.begin()->second.getUniformData();
-	else
-		mtl = Material().getUniformData();
+	std::vector<Material::Uniform> materials(1, Material().getUniformData());
+	materials.reserve(_M_ObjectInfo.materials.size() + 1);
+	int i = 0;
+	for (
+		auto mtl = _M_ObjectInfo.materials.begin();
+		mtl != _M_ObjectInfo.materials.end() && i < MAX_MATERIALS - 1;
+		mtl++, i++
+	)	materials.push_back(mtl->second.getUniformData());
 
-	/* Create a Uniform Buffer Object (UBO) with this data */
+	/* Set materials data into a Uniform Buffer Object (UBO) */
 	GLCall(glGenBuffers(1, &_M_UniformBuffer));
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, _M_UniformBuffer));
-	GLCall(glBufferData(GL_UNIFORM_BUFFER, sizeof(Material::Uniform), &mtl, GL_STATIC_DRAW));
+	GLCall(glBufferData(GL_UNIFORM_BUFFER, sizeof(Material::Uniform) * materials.size(), materials.data(), GL_STATIC_DRAW));
 	
 	/* Bind the UBO and the shader to the binding index 0 */
 	shader.setUniformBlock("uMaterials", 0);

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 05:55:20 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/03 10:06:56 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 22:51:44 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,8 +196,11 @@ Object::_parseMaterial(const LineElements& splitted)
 		
 		auto mtl = materials.find(splitted[1]);
 		if (mtl != materials.end())
-			_M_currentMaterial = &mtl->second;
+			_M_currentMaterial = &(mtl->second);
 		else
+		{
 			_M_currentMaterial = nullptr;
+			std::cerr << "unknown material name \"" + splitted[1] << "\"\n";
+		}
 	}
 }

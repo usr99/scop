@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 05:50:53 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/03 12:19:04 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 18:22:45 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ struct Object
 
 	private:
 	
-		using indices_t = std::pair<size_t, size_t>;
 		using Parser = void (Object::*)(const LineElements&);
 
 		enum Attribute

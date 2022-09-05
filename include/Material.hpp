@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/02 19:28:20 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 12:28:22 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/04 22:33:08 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 
 # include <map>
 # include "math.hpp"
-
-# define MAX_MATERIALS 128
 
 struct Material
 {
