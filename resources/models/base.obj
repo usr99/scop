@@ -3,7 +3,7 @@
 
 s 1
 
-mtllib resources/models/materials/42.mtl
+mtllib 42.mtl
 usemtl Material
 o lowman_shoes
 v -2.046645 3.723751 0.234023

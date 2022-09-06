@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 05:55:20 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 22:51:44 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/06 14:14:25 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,9 @@ Object::Object(const std::string& filename)
 	: groups(1, ShadingGroup(false)), vertexCount(0), _M_currentMaterial(nullptr)
 {
 	checkFileExtension(filename, ".obj");
+	size_t index = filename.find_last_of('/');
+	const std::string basePath = (index != filename.npos) ? filename.substr(0, index + 1) : "";
+	
 	std::ifstream file(filename);
 	if (file)
 	{
@@ -52,6 +55,8 @@ Object::Object(const std::string& filename)
 					switch (statement.front())
 					{
 						case 'm':
+							elements[1].insert(elements[1].begin(), basePath.begin(), basePath.end());
+							std::cout << elements[1] << '\n';
 							(this->*_ParserFunctions[Attribute::MATERIAL_LIB])(elements);
 							break;
 						case 'u':
