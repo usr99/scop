@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/06 13:32:30 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/06 13:55:24 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,7 +170,9 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 		{
 			/* Render skybox */
 			skyboxShader.bind();
-			skyboxShader.setUniformMat4f("uCamera", camera.getMatrix());
+			auto view = camera.getViewMatrix();
+			view[3] = glm::vec4(0.f, 0.f, 0.f, 1.0f); // cancel translation
+			skyboxShader.setUniformMat4f("uCamera", camera.getProjectionMatrix() * view);
 			skybox.render();
 
 			/* Set reflection uniforms */
