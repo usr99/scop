@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 15:33:21 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/05 18:59:30 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/05 20:45:25 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ class Skybox
 {
 	public:
 
-		Skybox(ShaderProgram& shader);
+		Skybox();
 		void render() const;
 
 	private:

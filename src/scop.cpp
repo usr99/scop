@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/05 19:03:52 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/05 22:15:36 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,6 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 	unsigned int textureId;
 	GLCall(glGenTextures(1, &textureId));
 	GLCall(glBindTexture(GL_TEXTURE_2D, textureId));
-	GLCall(glActiveTexture(GL_TEXTURE0));
 
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -112,10 +111,9 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
 	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.info.width, img.info.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, img.data()));
-	shader.setUniform1i("uTexture", 0);
 
 	ShaderProgram skyboxShader("src/shaders/skybox");
-	Skybox skybox(skyboxShader);
+	Skybox skybox;
 
 	/* Loop until the user closes the window */
 	bool windowShouldClose = false;
@@ -152,16 +150,23 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 
 		/* Render skybox */
 		skyboxShader.bind();
+		GLCall(glActiveTexture(GL_TEXTURE0));
+		skyboxShader.setUniform1i("uCubemap", 0);
 		skyboxShader.setUniformMat4f("uCamera", camera.getMatrix());
 		skybox.render();
 
 		/* Render object */
 		shader.bind();
+		GLCall(glActiveTexture(GL_TEXTURE0));
+		// shader.setUniform1i("uTexture", 0);
+		// GLCall(glActiveTexture(GL_TEXTURE1));
+		shader.setUniform1i("uCubemap", 0);
+		
 		shader.setUniformMat4f("uCamera", camera.getMatrix());
 		shader.setUniformMat4f("uModel", object.getMatrix());
-		shader.setUniformVec3f("uLightPosition", light.getPosition());
+		// shader.setUniformVec3f("uLightPosition", light.getPosition());
 		shader.setUniformVec3f("uCameraPosition", camera.getPosition());
-		shader.setUniform1f("uTextureAlpha", textureOpacity);
+		// shader.setUniform1f("uTextureAlpha", textureOpacity);
 		object.render();
 
 		/* Create ImGui settings menu */

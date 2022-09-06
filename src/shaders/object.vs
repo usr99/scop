@@ -11,6 +11,8 @@ out vec3 normal;
 out vec4 color;
 out vec2 texCoord;
 flat out uint materialId;
+out vec3 worldPosition;
+out vec3 worldNormal;
 
 uniform mat4 uCamera;
 uniform mat4 uModel;
@@ -22,6 +24,9 @@ void main()
 	texCoord = aTexture.xy;
 	color = vec4(aColor, 1.0);
 	materialId = uint(aMaterialIndex);
+
+	worldPosition = vec3(uModel * vec4(aPosition, 1.0));
+	worldNormal = mat3(uModel) * aNormal;
 
 	gl_Position = uCamera * vec4(currentPosition, 1.0);
 }

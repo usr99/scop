@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:28:10 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/05 18:02:36 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/05 20:31:40 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,18 @@ ArcballCamera::reset()
 {
 	_M_Eye = INIT_POSITION;
 	_M_TranslationVector = glm::vec3();
+}
+
+glm::mat4
+ArcballCamera::getProjectionMatrix() const
+{
+	return _M_ProjectionMatrix;
+}
+
+glm::mat4
+ArcballCamera::getViewMatrix() const
+{
+	return _M_ViewMatrix;
 }
 
 glm::mat4

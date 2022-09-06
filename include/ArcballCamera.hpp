@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:19:47 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 13:20:13 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/05 20:31:10 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ class ArcballCamera
 		void zoom(float value);
 		void reset();
 
+		glm::mat4 getProjectionMatrix() const;
+		glm::mat4 getViewMatrix() const;
 		glm::mat4 getMatrix() const;
 		glm::vec3 getPosition() const;
 

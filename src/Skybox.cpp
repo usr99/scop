@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 18:02:07 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/05 18:02:10 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/05 20:46:23 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ static const unsigned int _M_IndicesData[] = {
 	3, 7, 6,	3, 6, 2
 };
 
-Skybox::Skybox(ShaderProgram& shader)
+Skybox::Skybox()
 {
 	GLCall(glGenVertexArrays(1, &_M_VAO));
 	GLCall(glBindVertexArray(_M_VAO));
@@ -59,9 +59,6 @@ Skybox::Skybox(ShaderProgram& shader)
 		BMPimage img(_M_TexturesFiles[i]);
 		GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, img.info.width, img.info.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, img.data()));
 	}
-
-	GLCall(glActiveTexture(GL_TEXTURE0));
-	shader.setUniform1i("uCubemap", 0);
 
 	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
