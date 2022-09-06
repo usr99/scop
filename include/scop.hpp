@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 13:52:45 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 12:54:57 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/05 19:03:51 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
 # define WIN_W 800.0f
 # define WIN_H 600.0f
 
-void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader);
+void renderingLoop(GLFWwindow* window, const char* objectPath);
 long long getDurationFrom(std::chrono::system_clock::time_point& from);
 void handleMouseInputs(ArcballCamera& camera, bool isFreeOrbitEnabled);
 void handleKeyboardInputs(bool& isTextureEnabled, bool& exitProgram);

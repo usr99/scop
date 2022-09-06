@@ -6,14 +6,14 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:28:10 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 13:24:18 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/05 18:02:36 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ArcballCamera.hpp"
 
 ArcballCamera::ArcballCamera(float width, float height)
-	: 	_M_ProjectionMatrix(glm::perspective(glm::radians(45.0f), width / height, 0.1f, 50.0f)),
+	: 	_M_ProjectionMatrix(glm::perspective(glm::radians(45.0f), width / height, 0.1f, 100.0f)),
 		_M_Eye(INIT_POSITION), _M_LookAt(glm::vec3()), _M_UpVector(glm::vec3(0.f, 1.f, 0.f)),
 		_M_TranslationVector(0.f), _M_Zoom(1.f)
 {

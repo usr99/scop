@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 22:51:12 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/05 16:08:18 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,6 +188,10 @@ Model::Model(const std::string& path, ShaderProgram& shader)
 		}
 	}
 
+	/* Create Vertex Array Object */
+	GLCall(glGenVertexArrays(1, &_M_VAO));
+	GLCall(glBindVertexArray(_M_VAO));
+
 	/* Create VBOs from converted data */
 	GLCall(glGenBuffers(1, &_M_VertexBuffer));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, _M_VertexBuffer));
@@ -236,6 +240,10 @@ Model::Model(const std::string& path, ShaderProgram& shader)
 void
 Model::render()
 {
+	GLCall(glBindVertexArray(_M_VAO));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, _M_VertexBuffer));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _M_IndexBuffer));
+
 	_M_Palette.update();
 	if (_M_RenderingMode == GL_POINTS)
 		GLCall(glPointSize(_M_PointSize));

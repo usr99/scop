@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 22:33:16 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/05 15:59:09 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ class Model
 
 		Object			_M_ObjectInfo;
 
+		unsigned int 	_M_VAO;
 		unsigned int 	_M_VertexBuffer;
 		unsigned int 	_M_IndexBuffer;
 		unsigned int	_M_UniformBuffer;

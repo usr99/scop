@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 22:49:32 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/05 19:03:52 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "scop.hpp"
 #include "LightSource.hpp"
 #include "BMPimage.hpp"
+#include "Skybox.hpp"
 
 int main(int ac, char **av)
 {
@@ -63,20 +64,8 @@ int main(int ac, char **av)
 		GLCall(glEnable(GL_BLEND)); // enable blending
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)); // set blending behavior
 		GLCall(glDisable(GL_CULL_FACE)); // disable face culling
-		
-		/*
-		** In OpenGL Core profile, there is no default vertex array object
-		** so we must create it
-		*/
-		unsigned int vao;
-		GLCall(glGenVertexArrays(1, &vao));
-		GLCall(glBindVertexArray(vao));
 
-		/* Load shaders and .obj model */
-		ShaderProgram shader("src/shaders/basic");
-		Model object(av[1], shader);
-
-		renderingLoop(window, object, shader);
+		renderingLoop(window, av[1]);
 	}
 	catch (const std::exception& e)
 	{
@@ -95,8 +84,12 @@ int main(int ac, char **av)
 	return !error ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
+void renderingLoop(GLFWwindow* window, const char* objectPath)
 {
+	/* Load shaders and .obj model */
+	ShaderProgram shader("src/shaders/object");
+	Model object(objectPath, shader);
+
 	ArcballCamera camera(WIN_W, WIN_H);
 	LightSource light;
 	vec3 background({ 0.1f, 0.1f, 0.1f });
@@ -107,7 +100,7 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 	float textureOpacity = 0.f;
 	bool isTextureEnabled = false;
 
-	BMPimage img("resources/textures/block.bmp");
+	BMPimage img("resources/textures/top.bmp");
 	unsigned int textureId;
 	GLCall(glGenTextures(1, &textureId));
 	GLCall(glBindTexture(GL_TEXTURE_2D, textureId));
@@ -120,6 +113,9 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 
 	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.info.width, img.info.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, img.data()));
 	shader.setUniform1i("uTexture", 0);
+
+	ShaderProgram skyboxShader("src/shaders/skybox");
+	Skybox skybox(skyboxShader);
 
 	/* Loop until the user closes the window */
 	bool windowShouldClose = false;
@@ -154,12 +150,21 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 			textureOpacity = std::max(0.f, textureOpacity);
 		}
 
+		/* Render skybox */
+		skyboxShader.bind();
+		skyboxShader.setUniformMat4f("uCamera", camera.getMatrix());
+		skybox.render();
+
+		/* Render object */
+		shader.bind();
 		shader.setUniformMat4f("uCamera", camera.getMatrix());
 		shader.setUniformMat4f("uModel", object.getMatrix());
 		shader.setUniformVec3f("uLightPosition", light.getPosition());
 		shader.setUniformVec3f("uCameraPosition", camera.getPosition());
 		shader.setUniform1f("uTextureAlpha", textureOpacity);
+		object.render();
 
+		/* Create ImGui settings menu */
 		ImGui::Begin("Settings");
 		object.showSettingsPanel();
 		light.showSettingsPanel();
@@ -170,7 +175,6 @@ void renderingLoop(GLFWwindow* window, Model& object, ShaderProgram& shader)
 		}
 		ImGui::ColorEdit3("Background Color", (float*)&background);
 		ImGui::End();
-		object.render();
 
 		/* Render dear imgui into screen */
 		ImGui::Render();
