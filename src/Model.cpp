@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/06 13:17:44 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/06 14:31:47 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,13 +219,17 @@ Model::Model(const std::string& path)
 
 	/* Create a buffer with materials data */
 	std::vector<Material::Uniform> materials(1, Material().getUniformData());
-	materials.reserve(_M_ObjectInfo.materials.size() + 1);
+	materials.resize(_M_ObjectInfo.materials.size() + 1);
 	int i = 0;
 	for (
 		auto mtl = _M_ObjectInfo.materials.begin();
 		mtl != _M_ObjectInfo.materials.end() && i < MAX_MATERIALS - 1;
 		mtl++, i++
-	)	materials.push_back(mtl->second.getUniformData());
+	) {
+		const auto idx = mtl->second.id + 1;
+		if (idx < MAX_MATERIALS)
+			materials[idx] = mtl->second.getUniformData();
+	}
 
 	/* Set materials data into a Uniform Buffer Object (UBO) */
 	GLCall(glGenBuffers(1, &_M_UniformBuffer));
