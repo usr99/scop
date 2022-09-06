@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/05 22:15:36 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/06 13:32:30 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,14 +84,33 @@ int main(int ac, char **av)
 	return !error ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+enum Mode
+{
+	MATERIAL,
+	REFLECTION,
+	REFRACTION
+};
+
 void renderingLoop(GLFWwindow* window, const char* objectPath)
 {
 	/* Load shaders and .obj model */
-	ShaderProgram shader("src/shaders/object");
-	Model object(objectPath, shader);
+	ShaderProgram mainShader("src/shaders/object");
+	mainShader.setUniformBlock("uMaterials", 0);
+	mainShader.setUniform1i("uTexture", 0);
+
+	ShaderProgram reflectionShader("src/shaders/reflection");
+	reflectionShader.setUniformBlock("uMaterials", 0);
+	reflectionShader.setUniform1i("uCubemap", 0);
+
+	ShaderProgram skyboxShader("src/shaders/skybox");
+	skyboxShader.setUniform1i("uCubemap", 0);
+
+	Model object(objectPath);
+	GLCall(glActiveTexture(GL_TEXTURE0));
 
 	ArcballCamera camera(WIN_W, WIN_H);
 	LightSource light;
+	Skybox skybox;
 	vec3 background({ 0.1f, 0.1f, 0.1f });
 
 	bool freeOrbitEnabled = false;
@@ -99,6 +118,8 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 	auto timeLastTextureFade = std::chrono::system_clock::now();
 	float textureOpacity = 0.f;
 	bool isTextureEnabled = false;
+	const char* modes[] = { "MATERIAL", "REFLECTION", "REFRACTION" };
+	int currentMode = 0;
 
 	BMPimage img("resources/textures/top.bmp");
 	unsigned int textureId;
@@ -111,9 +132,6 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
 	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.info.width, img.info.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, img.data()));
-
-	ShaderProgram skyboxShader("src/shaders/skybox");
-	Skybox skybox;
 
 	/* Loop until the user closes the window */
 	bool windowShouldClose = false;
@@ -148,37 +166,48 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 			textureOpacity = std::max(0.f, textureOpacity);
 		}
 
-		/* Render skybox */
-		skyboxShader.bind();
-		GLCall(glActiveTexture(GL_TEXTURE0));
-		skyboxShader.setUniform1i("uCubemap", 0);
-		skyboxShader.setUniformMat4f("uCamera", camera.getMatrix());
-		skybox.render();
+		if (currentMode > MATERIAL)
+		{
+			/* Render skybox */
+			skyboxShader.bind();
+			skyboxShader.setUniformMat4f("uCamera", camera.getMatrix());
+			skybox.render();
+
+			/* Set reflection uniforms */
+			reflectionShader.bind();
+			reflectionShader.setUniformMat4f("uCamera", camera.getMatrix());
+			reflectionShader.setUniformMat4f("uModel", object.getMatrix());
+			reflectionShader.setUniformVec3f("uCameraPosition", camera.getPosition());
+			reflectionShader.setUniform1i("uRefractionEnabled", currentMode - 1);
+		}
+
+		if (currentMode == MATERIAL)
+		{
+			mainShader.bind();
+			mainShader.setUniformMat4f("uCamera", camera.getMatrix());
+			mainShader.setUniformMat4f("uModel", object.getMatrix());
+			mainShader.setUniformVec3f("uCameraPosition", camera.getPosition());
+			mainShader.setUniformVec3f("uLightPosition", light.getPosition());
+			mainShader.setUniform1f("uTextureAlpha", textureOpacity);		
+		}
 
 		/* Render object */
-		shader.bind();
-		GLCall(glActiveTexture(GL_TEXTURE0));
-		// shader.setUniform1i("uTexture", 0);
-		// GLCall(glActiveTexture(GL_TEXTURE1));
-		shader.setUniform1i("uCubemap", 0);
-		
-		shader.setUniformMat4f("uCamera", camera.getMatrix());
-		shader.setUniformMat4f("uModel", object.getMatrix());
-		// shader.setUniformVec3f("uLightPosition", light.getPosition());
-		shader.setUniformVec3f("uCameraPosition", camera.getPosition());
-		// shader.setUniform1f("uTextureAlpha", textureOpacity);
 		object.render();
 
 		/* Create ImGui settings menu */
 		ImGui::Begin("Settings");
-		object.showSettingsPanel();
+		const char* currentModeName = modes[currentMode];
+		ImGui::SliderInt("Lighting mode", &currentMode, 0, 2, currentModeName);
+		ImGui::BeginDisabled(currentMode != MATERIAL);
+			object.showSettingsPanel();
+			ImGui::ColorEdit3("Background color", (float*)&background);
+		ImGui::EndDisabled();
 		light.showSettingsPanel();
 		if (ImGui::Checkbox("toggle free orbit", &freeOrbitEnabled))
 		{
 			camera.reset();
 			timeLastRotation = std::chrono::system_clock::now(); // avoid big rotations when free orbit is toggled off
 		}
-		ImGui::ColorEdit3("Background Color", (float*)&background);
 		ImGui::End();
 
 		/* Render dear imgui into screen */

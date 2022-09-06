@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/05 22:01:56 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/06 13:17:44 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 #include "Model.hpp"
 #include "debug.hpp"
 
-Model::Model(const std::string& path, ShaderProgram& shader)
+Model::Model(const std::string& path)
 	:	_M_ObjectInfo(path),
 		_M_RotationAngle(0.f), _M_RenderingMode(GL_TRIANGLES), _M_PointSize(1)
 {
@@ -232,8 +232,7 @@ Model::Model(const std::string& path, ShaderProgram& shader)
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, _M_UniformBuffer));
 	GLCall(glBufferData(GL_UNIFORM_BUFFER, sizeof(Material::Uniform) * materials.size(), materials.data(), GL_STATIC_DRAW));
 	
-	/* Bind the UBO and the shader to the binding index 0 */
-	shader.setUniformBlock("uMaterials", 0);
+	/* Bind the UBO to the binding index 0 */
 	GLCall(glBindBufferBase(GL_UNIFORM_BUFFER, 0, _M_UniformBuffer));
 }
 

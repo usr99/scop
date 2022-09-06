@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/05 15:59:09 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/06 13:17:33 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Model
 {
 	public:
 
-		Model(const std::string& path, ShaderProgram& shader);
+		Model(const std::string& path);
 
 		void render();
 		void showSettingsPanel();
