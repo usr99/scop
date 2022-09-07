@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/06 19:27:22 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 18:43:48 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "LightSource.hpp"
 #include "BMPimage.hpp"
 #include "Skybox.hpp"
+#include "textures.hpp"
 
 int main(int ac, char **av)
 {
@@ -93,24 +94,15 @@ enum Mode
 
 void renderingLoop(GLFWwindow* window, const char* objectPath)
 {
-	/* Load shaders and .obj model */
-	ShaderProgram mainShader("src/shaders/object");
-	mainShader.setUniformBlock("uMaterials", 0);
-	
-	BMPimage img(Material().texture);
-	unsigned int textureId;
-	GLCall(glActiveTexture(GL_TEXTURE0));
-	GLCall(glGenTextures(1, &textureId));
-	GLCall(glBindTexture(GL_TEXTURE_2D, textureId));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.info.width, img.info.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, img.data()));
-
+	/* Load textures */
+	loadTexture(Material::DefaultTexture, 0);
 	int textureSamplers[MAX_TEXTURES];
 	for (int i = 0; i < MAX_TEXTURES; i++)
 		textureSamplers[i] = i;
+
+	/* Load shaders and .obj model */
+	ShaderProgram mainShader("src/shaders/object");
+	mainShader.setUniformBlock("uMaterials", 0);
 	mainShader.setUniform1iv("uTexture[0]", MAX_TEXTURES, textureSamplers);
 	
 	ShaderProgram reflectionShader("src/shaders/reflection");

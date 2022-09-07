@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/02 19:28:20 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 22:33:08 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 18:42:06 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,19 +19,6 @@
 struct Material
 {
 	Material(unsigned int id = 0);
-
-	unsigned int id;
-
-	vec3 ambientColor;
-	vec3 diffuseColor;
-	vec3 specularColor;
-
-	float specularExponent;
-	float refraction;
-	float opacity;
-	unsigned int illuminationModel; // 0-2
-
-	std::string texture;
 
 	struct Uniform
 	{
@@ -46,6 +33,18 @@ struct Material
 	};
 
 	Uniform getUniformData() const;
+
+	unsigned int id;
+	vec3 ambientColor;
+	vec3 diffuseColor;
+	vec3 specularColor;
+	float specularExponent;
+	float refraction;
+	float opacity;
+	unsigned int illuminationModel; // 0-2
+	std::string texture;
+	
+	static const std::string DefaultTexture;
 };
 
 #endif

@@ -16,7 +16,7 @@ LIBS = ${addsuffix /lib, ${addprefix -L, ${DEPS_FULL_PATH}}} -lGLEW -lglfw -Llib
 
 SRCDIR	= ./src/
 SRC		= scop.cpp Model.cpp ShaderProgram.cpp ArcballCamera.cpp LightSource.cpp ColorPalette.cpp debug.cpp \
-			parser.cpp Object.cpp Material.cpp BMPimage.cpp Skybox.cpp
+			parser.cpp Object.cpp Material.cpp BMPimage.cpp Skybox.cpp textures.cpp
 
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
