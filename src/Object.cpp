@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 05:55:20 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/06 14:14:25 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/06 17:07:27 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,6 @@ Object::Object(const std::string& filename)
 					{
 						case 'm':
 							elements[1].insert(elements[1].begin(), basePath.begin(), basePath.end());
-							std::cout << elements[1] << '\n';
 							(this->*_ParserFunctions[Attribute::MATERIAL_LIB])(elements);
 							break;
 						case 'u':

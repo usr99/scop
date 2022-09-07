@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:37:56 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/03 14:10:08 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 01:57:26 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,12 @@ void
 ShaderProgram::setUniform1i(const std::string& name, int value)
 {
 	GLCall(glUniform1i(_getUniformLocation(name), value));
+}
+
+void
+ShaderProgram::setUniform1iv(const std::string& name, unsigned int count, int* data)
+{
+	GLCall(glUniform1iv(_getUniformLocation(name), count, data));
 }
 
 void
@@ -125,6 +131,17 @@ ShaderProgram::_createShader(const std::string &vertexShader, const std::string 
 	GLCall(glAttachShader(program, vs));
 	GLCall(glAttachShader(program, fs));
 	GLCall(glLinkProgram(program));
+
+	int result;
+	GLCall(glGetProgramiv(program, GL_LINK_STATUS, &result));
+	if (result == GL_FALSE)
+	{
+		char message[500];
+		GLsizei length;
+		GLCall(glGetProgramInfoLog(program, 500, &length, message));
+		std::cerr << message << "\n";
+	}
+
 	GLCall(glValidateProgram(program));
 
 	GLCall(glDeleteShader(vs));

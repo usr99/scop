@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/02 19:52:33 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/03 23:36:49 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/06 17:05:27 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,7 @@ void loadMaterialLibrary(const std::string& filename, MaterialLibrary& lib)
 						case 'm':
 							if (statement == "map_Kd")
 								last->second.texture = parseString1(elements);
+								last->second.texture = "resources/textures/" + last->second.texture;
 							break;
 					}
 				}

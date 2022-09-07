@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/06 14:31:47 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/06 22:14:44 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 #include "Model.hpp"
+#include "BMPimage.hpp"
 #include "debug.hpp"
 
 Model::Model(const std::string& path)
@@ -228,7 +229,24 @@ Model::Model(const std::string& path)
 	) {
 		const auto idx = mtl->second.id + 1;
 		if (idx < MAX_MATERIALS)
+		{
 			materials[idx] = mtl->second.getUniformData();
+
+			if (idx < MAX_TEXTURES)
+			{
+				BMPimage img(mtl->second.texture);
+				unsigned int textureId;
+				GLCall(glGenTextures(1, &textureId));
+				GLCall(glActiveTexture(GL_TEXTURE0 + idx));
+				GLCall(glBindTexture(GL_TEXTURE_2D, textureId));
+
+				GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+				GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+				GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+				GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+				GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.info.width, img.info.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, img.data()));
+			}
+		}
 	}
 
 	/* Set materials data into a Uniform Buffer Object (UBO) */

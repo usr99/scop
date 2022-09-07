@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 05:50:53 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/04 18:22:45 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/06 19:11:11 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,9 @@
 # include <map>
 
 # include "parser.hpp"
+
+# define MAX_MATERIALS 128
+# define MAX_TEXTURES 16
 
 struct Vertex : public std::array<unsigned int, 3>
 {

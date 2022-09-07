@@ -1,5 +1,6 @@
 # version 330 core
 # define MAX_MATERIALS 128
+# define MAX_TEXTURES 16
 
 struct Material
 {
@@ -28,7 +29,7 @@ out vec4 fragColor;
 
 uniform vec3 uLightPosition;
 uniform vec3 uCameraPosition;
-uniform sampler2D uTexture;
+uniform sampler2D uTexture[MAX_TEXTURES];
 uniform float uTextureAlpha;
 
 void main()
@@ -36,7 +37,7 @@ void main()
 	Material mtl = materials[materialId];
 
 	// model color
-	vec4 texColor = texture(uTexture, texCoord);
+	vec4 texColor = texture(uTexture[materialId], texCoord);
 	vec4 objectColor = (color * (1 - uTextureAlpha) + texColor * uTextureAlpha);
 	
 	// ligth direction
