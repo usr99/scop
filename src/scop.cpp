@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 18:43:48 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 18:48:46 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,12 @@ enum Mode
 
 void renderingLoop(GLFWwindow* window, const char* objectPath)
 {
+	Model object(objectPath);
+	ArcballCamera camera(WIN_W, WIN_H);
+	LightSource light;
+	Skybox skybox;
+	vec3 background({ 0.1f, 0.1f, 0.1f });
+
 	/* Load textures */
 	loadTexture(Material::DefaultTexture, 0);
 	int textureSamplers[MAX_TEXTURES];
@@ -111,13 +117,6 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 
 	ShaderProgram skyboxShader("src/shaders/skybox");
 	skyboxShader.setUniform1i("uCubemap", 0);
-
-	Model object(objectPath);
-
-	ArcballCamera camera(WIN_W, WIN_H);
-	LightSource light;
-	Skybox skybox;
-	vec3 background({ 0.1f, 0.1f, 0.1f });
 
 	bool freeOrbitEnabled = false;
 	auto timeLastRotation = std::chrono::system_clock::now();
