@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/06 15:01:45 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 19:55:56 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Model
 
 		Model(const std::string& path);
 
-		void render();
+		void render(int primitives);
 		void showSettingsPanel();
 
 		void rotate(float angle);
@@ -48,8 +48,6 @@ class Model
 
 		ColorPalette	_M_Palette;
 		float			_M_RotationAngle;
-		int				_M_RenderingMode;
-		int				_M_PointSize;
 };
 
 #endif

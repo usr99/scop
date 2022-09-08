@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 13:52:45 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/05 19:03:51 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 19:52:53 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,16 +23,44 @@
 # include "imgui/imgui_impl_opengl3.h"
 
 # include "Model.hpp"
-# include "ShaderProgram.hpp"
+# include "LightSource.hpp"
 # include "ArcballCamera.hpp"
 # include "debug.hpp"
 
-# define WIN_W 800.0f
-# define WIN_H 600.0f
+# define WIN_W 1200.0f
+# define WIN_H 900.0f
+
+enum ShaderType
+{
+	MATERIAL,
+	REFLECTION,
+	REFRACTION
+};
+
+struct Settings
+{
+	using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
+
+	ShaderType current;
+	vec3 background;
+	int primitive;
+	int dotsize;
+
+	bool freeOrbit;
+	Timestamp lastRotation;
+	
+	bool textured;
+	float opacity;
+	Timestamp lastTransition;
+
+	static constexpr const char* SHADERS[] = { "MATERIAL", "REFLECTION", "REFRACTION" } ;
+};
 
 void renderingLoop(GLFWwindow* window, const char* objectPath);
 long long getDurationFrom(std::chrono::system_clock::time_point& from);
 void handleMouseInputs(ArcballCamera& camera, bool isFreeOrbitEnabled);
 void handleKeyboardInputs(bool& isTextureEnabled, bool& exitProgram);
+void showSettingsWindow(Settings& settings, Model& object, LightSource& light, ArcballCamera& camera);
+void handleTime(Settings& settings, Model& object);
 
 #endif

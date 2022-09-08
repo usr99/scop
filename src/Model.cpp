@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 18:37:55 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 19:56:10 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,7 @@
 #include "textures.hpp"
 
 Model::Model(const std::string& path)
-	:	_M_ObjectInfo(path),
-		_M_RotationAngle(0.f), _M_RenderingMode(GL_TRIANGLES), _M_PointSize(1)
+	:	_M_ObjectInfo(path), _M_RotationAngle(0.f)
 {
 	/* Initialize RNG which is needed to generate faces colors */
 	std::srand(time(nullptr));
@@ -247,29 +246,20 @@ Model::Model(const std::string& path)
 }
 
 void
-Model::render()
+Model::render(int primitives)
 {
 	GLCall(glBindVertexArray(_M_VAO));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, _M_VertexBuffer));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _M_IndexBuffer));
 
 	_M_Palette.update();
-	if (_M_RenderingMode == GL_POINTS)
-		GLCall(glPointSize(_M_PointSize));
-	GLCall(glDrawElements(_M_RenderingMode, _M_IndicesCount, GL_UNSIGNED_INT, 0));
+	GLCall(glDrawElements(primitives, _M_IndicesCount, GL_UNSIGNED_INT, 0));
 }
 
 void
 Model::showSettingsPanel()
 {
 	_M_Palette.showSettings();
-
-	ImGui::RadioButton("Triangles", &_M_RenderingMode, GL_TRIANGLES);
-	ImGui::RadioButton("Wireframe", &_M_RenderingMode, GL_LINE_STRIP);
-	ImGui::RadioButton("Dots", &_M_RenderingMode, GL_POINTS);
-	ImGui::BeginDisabled(_M_RenderingMode != GL_POINTS);
-		ImGui::SliderInt("size", &_M_PointSize, 1, 10);
-	ImGui::EndDisabled();
 }
 
 void

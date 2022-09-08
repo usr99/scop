@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/02 19:28:20 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 18:42:06 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 19:40:25 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ struct Material
 	unsigned int illuminationModel; // 0-2
 	std::string texture;
 	
-	static const std::string DefaultTexture;
+	static constexpr const char* DefaultTexture = "resources/textures/block.bmp";
 };
 
 #endif

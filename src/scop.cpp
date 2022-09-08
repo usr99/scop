@@ -6,14 +6,13 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 18:48:46 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 21:02:22 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <chrono>
 
 #include "scop.hpp"
-#include "LightSource.hpp"
 #include "BMPimage.hpp"
 #include "Skybox.hpp"
 #include "textures.hpp"
@@ -85,20 +84,12 @@ int main(int ac, char **av)
 	return !error ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-enum Mode
-{
-	MATERIAL,
-	REFLECTION,
-	REFRACTION
-};
-
 void renderingLoop(GLFWwindow* window, const char* objectPath)
 {
 	Model object(objectPath);
 	ArcballCamera camera(WIN_W, WIN_H);
 	LightSource light;
 	Skybox skybox;
-	vec3 background({ 0.1f, 0.1f, 0.1f });
 
 	/* Load textures */
 	loadTexture(Material::DefaultTexture, 0);
@@ -118,20 +109,24 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 	ShaderProgram skyboxShader("src/shaders/skybox");
 	skyboxShader.setUniform1i("uCubemap", 0);
 
-	bool freeOrbitEnabled = false;
-	auto timeLastRotation = std::chrono::system_clock::now();
-	auto timeLastTextureFade = std::chrono::system_clock::now();
-	float textureOpacity = 0.f;
-	bool isTextureEnabled = false;
-	const char* modes[] = { "MATERIAL", "REFLECTION", "REFRACTION" };
-	int currentMode = 0;
+	Settings settings = {
+		.current = ShaderType::MATERIAL, .background = vec3({ 0.1f, 0.1f, 0.1f }),
+		.primitive = GL_TRIANGLES, .dotsize = 1,
+		.freeOrbit = false, .lastRotation = std::chrono::system_clock::now(),
+		.textured = false, .opacity = 0.f, .lastTransition = std::chrono::system_clock::now()
+	};
 
 	/* Loop until the user closes the window */
 	bool windowShouldClose = false;
 	while (!windowShouldClose)
 	{
 		windowShouldClose = glfwWindowShouldClose(window);
-		GLCall(glClearColor(background.x(), background.y(), background.z(), 1.f)); // set background color
+		GLCall(glClearColor(
+			settings.background.x(),
+			settings.background.y(),
+			settings.background.z(),
+			1.f
+		)); // set background color
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 		/* Create the new ImGui frame */
@@ -139,27 +134,12 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		handleMouseInputs(camera, freeOrbitEnabled);
-		handleKeyboardInputs(isTextureEnabled, windowShouldClose);
+		handleMouseInputs(camera, settings.freeOrbit);
+		handleKeyboardInputs(settings.textured, windowShouldClose);
+		handleTime(settings, object);
+		showSettingsWindow(settings, object, light, camera);
 
-		if (!freeOrbitEnabled)
-		{
-			/* Rotate the model on its Y-axis */
-			const float angle = (getDurationFrom(timeLastRotation) * 360.f) / 10000.f; // a full rotation takes 10 seconds
-			object.rotate(angle);
-		}
-		if (isTextureEnabled)
-		{
-			textureOpacity += getDurationFrom(timeLastTextureFade) / 2000.f;
-			textureOpacity = std::min(1.f, textureOpacity);
-		}
-		else
-		{
-			textureOpacity -= getDurationFrom(timeLastTextureFade) / 2000.f;
-			textureOpacity = std::max(0.f, textureOpacity);
-		}
-
-		if (currentMode > MATERIAL)
+		if (settings.current > MATERIAL)
 		{
 			/* Render skybox */
 			skyboxShader.bind();
@@ -173,7 +153,7 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 			reflectionShader.setUniformMat4f("uCamera", camera.getMatrix());
 			reflectionShader.setUniformMat4f("uModel", object.getMatrix());
 			reflectionShader.setUniformVec3f("uCameraPosition", camera.getPosition());
-			reflectionShader.setUniform1i("uRefractionEnabled", currentMode - 1);
+			reflectionShader.setUniform1i("uRefractionEnabled", settings.current - 1);
 		}
 		else
 		{
@@ -182,27 +162,11 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 			mainShader.setUniformMat4f("uModel", object.getMatrix());
 			mainShader.setUniformVec3f("uCameraPosition", camera.getPosition());
 			mainShader.setUniformVec3f("uLightPosition", light.getPosition());
-			mainShader.setUniform1f("uTextureAlpha", textureOpacity);		
+			mainShader.setUniform1f("uTextureAlpha", settings.opacity);		
 		}
 
 		/* Render object */
-		object.render();
-
-		/* Create ImGui settings menu */
-		ImGui::Begin("Settings");
-		const char* currentModeName = modes[currentMode];
-		ImGui::SliderInt("Lighting mode", &currentMode, 0, 2, currentModeName);
-		ImGui::BeginDisabled(currentMode != MATERIAL);
-			object.showSettingsPanel();
-			ImGui::ColorEdit3("Background color", (float*)&background);
-		ImGui::EndDisabled();
-		light.showSettingsPanel();
-		if (ImGui::Checkbox("toggle free orbit", &freeOrbitEnabled))
-		{
-			camera.reset();
-			timeLastRotation = std::chrono::system_clock::now(); // avoid big rotations when free orbit is toggled off
-		}
-		ImGui::End();
+		object.render(settings.primitive);
 
 		/* Render dear imgui into screen */
 		ImGui::Render();
@@ -252,4 +216,86 @@ void handleKeyboardInputs(bool& isTextureEnabled, bool& exitProgram)
 
 	if (ImGui::IsKeyPressed(ImGuiKey_T))
 		isTextureEnabled = !isTextureEnabled;
+}
+
+void showSettingsWindow(Settings& settings, Model& object, LightSource& light, ArcballCamera& camera)
+{
+	static int tab = 0;
+	
+	ImGui::SetNextWindowSize(ImVec2(395.f, 140.f));
+	ImGui::SetNextWindowPos(ImVec2(5.f, 5.f));
+	ImGui::Begin(
+		"Settings",
+		nullptr,
+		ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar
+	);
+
+	static auto showButton = [](const char* label, int index) {
+		bool selected = (tab == index);
+		if (selected)
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.06f, 0.53f, 0.98f, 1.f));
+		if (ImGui::Button(label, ImVec2(185,25)))
+			tab = index;
+		if (selected)
+			ImGui::PopStyleColor();
+	};
+
+	showButton("Rendering", 0);
+	ImGui::SameLine();
+	showButton("Scene", 1);
+	ImGui::Separator();
+
+	if (tab == 0)
+	{
+			ImGui::SliderInt(
+				"shader presets",
+				reinterpret_cast<int *>(&settings.current),
+				0, 2, Settings::SHADERS[settings.current]);
+
+			ImGui::RadioButton("triangles", &settings.primitive, GL_TRIANGLES);
+			ImGui::SameLine();
+			ImGui::RadioButton("wireframe", &settings.primitive, GL_LINE_STRIP);
+			ImGui::SameLine();
+			ImGui::RadioButton("dots", &settings.primitive, GL_POINTS);
+			ImGui::BeginDisabled(settings.primitive != GL_POINTS);
+			if (ImGui::SliderInt("size", &settings.dotsize, 1, 10))
+				GLCall(glPointSize(settings.dotsize));
+			ImGui::EndDisabled();
+
+			ImGui::BeginDisabled(settings.current != MATERIAL);
+			ImGui::ColorEdit3("background", (float *)&settings.background);
+			ImGui::EndDisabled();
+	}
+	else
+	{
+			object.showSettingsPanel();
+			if (ImGui::Checkbox("toggle free orbit", &settings.freeOrbit))
+			{
+				camera.reset();
+				settings.lastRotation = std::chrono::system_clock::now(); // avoid big rotations when free orbit is toggled off
+			}
+			light.showSettingsPanel();
+	}
+
+	ImGui::End();
+}
+
+void handleTime(Settings& settings, Model& object)
+{
+	if (!settings.freeOrbit)
+	{
+		/* Rotate the model on its Y-axis */
+		const float angle = (getDurationFrom(settings.lastRotation) * 360.f) / 10000.f; // a full rotation takes 10 seconds
+		object.rotate(angle);
+	}
+	if (settings.textured)
+	{
+		settings.opacity += getDurationFrom(settings.lastTransition) / 2000.f;
+		settings.opacity = std::min(1.f, settings.opacity);
+	}
+	else
+	{
+		settings.opacity -= getDurationFrom(settings.lastTransition) / 2000.f;
+		settings.opacity = std::max(0.f, settings.opacity);
+	}
 }

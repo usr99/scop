@@ -6,15 +6,13 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/02 19:35:40 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 18:42:27 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 19:40:22 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Material.hpp"
 #include "parser.hpp"
 #include "debug.hpp"
-
-const std::string Material::DefaultTexture = "resources/textures/block.bmp";
 
 Material::Material(unsigned int id)
 	: id(id),
