@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 19:55:56 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 21:36:28 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 
 # include "math.hpp"
 # include "ColorPalette.hpp"
-# include "Object.hpp"
 # include "ShaderProgram.hpp"
 
 class Model
@@ -37,8 +36,6 @@ class Model
 	private:
 
 		void _insertVertexAttribute(std::vector<float>& buffer, unsigned int offset, std::vector<glm::vec3>& from, unsigned int index);
-
-		Object			_M_ObjectInfo;
 
 		unsigned int 	_M_VAO;
 		unsigned int 	_M_VertexBuffer;

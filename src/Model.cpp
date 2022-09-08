@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 19:56:10 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 21:36:22 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,19 @@
 #include "BMPimage.hpp"
 #include "debug.hpp"
 #include "textures.hpp"
+#include "Object.hpp"
 
-Model::Model(const std::string& path)
-	:	_M_ObjectInfo(path), _M_RotationAngle(0.f)
+Model::Model(const std::string& path) : _M_RotationAngle(0.f)
 {
+	Object obj(path);
+
 	/* Initialize RNG which is needed to generate faces colors */
 	std::srand(time(nullptr));
 
-	std::vector<float> vxBuffer(_M_ObjectInfo.vertexCount * 13, 0.f);
+	std::vector<float> vxBuffer(obj.vertexCount * 13, 0.f);
 	std::vector<unsigned int> idxBuffer;
-	idxBuffer.reserve(_M_ObjectInfo.vertexCount);
-	_M_Palette.reserve(_M_ObjectInfo.vertexCount * 3);
+	idxBuffer.reserve(obj.vertexCount);
+	_M_Palette.reserve(obj.vertexCount * 3);
 
 	/*
 	** Compute the translation vector to place the object at the center of the world space
@@ -44,11 +46,11 @@ Model::Model(const std::string& path)
 	float biggest = 0;
 	for (int i = 0; i < 3; i++)
 	{
-		mean[i] = -(_M_ObjectInfo.max[i] + _M_ObjectInfo.min[i]) / 2;
-		biggest = std::max(std::max(std::abs(_M_ObjectInfo.max[i]), std::abs(_M_ObjectInfo.min[i])), biggest);
+		mean[i] = -(obj.max[i] + obj.min[i]) / 2;
+		biggest = std::max(std::max(std::abs(obj.max[i]), std::abs(obj.min[i])), biggest);
 	}
 	float scalingFactor = 2 / biggest;
-	for (auto vertex = _M_ObjectInfo.vertices.begin(); vertex != _M_ObjectInfo.vertices.end(); vertex++)
+	for (auto vertex = obj.vertices.begin(); vertex != obj.vertices.end(); vertex++)
 		*vertex = (*vertex + mean) * scalingFactor; // translate and scale the vertex coordinate to fit the range [-2;2]
 
 	/*
@@ -62,7 +64,7 @@ Model::Model(const std::string& path)
 	unsigned int lastIndex = 0;
 
 	/* Generate texture coordinates if not provided in the file */
-	if (_M_ObjectInfo.textures.size() == 0)
+	if (obj.textures.size() == 0)
 	{
 		glm::vec3 coordinates[4] = {
 			glm::vec3(1.f, 0.f, 0.f),
@@ -70,10 +72,10 @@ Model::Model(const std::string& path)
 			glm::vec3(0.f, 1.f, 0.f),
 			glm::vec3(0.f, 0.f, 0.)
 		};
-		_M_ObjectInfo.textures.insert(_M_ObjectInfo.textures.end(), coordinates, coordinates + 4);
+		obj.textures.insert(obj.textures.end(), coordinates, coordinates + 4);
 	}
 
-	for (auto group = _M_ObjectInfo.groups.begin(); group != _M_ObjectInfo.groups.end(); group++)
+	for (auto group = obj.groups.begin(); group != obj.groups.end(); group++)
 	{
 		/* Generate face normals for the polygons missing them */
 		std::map<unsigned int, std::list<unsigned int*>> storage;
@@ -96,13 +98,13 @@ Model::Model(const std::string& path)
 			{
 				glm::vec3 points[3];
 				for (int i = 0; i < 3; i++)
-					std::copy_n(&_M_ObjectInfo.vertices[(polygon[i].position() - 1)], 1, &points[i]);
+					std::copy_n(&obj.vertices[(polygon[i].position() - 1)], 1, &points[i]);
 				glm::vec3 normalVector = glm::normalize(glm::cross(points[0] - points[1], points[0] - points[2]));
-				_M_ObjectInfo.normals.push_back(normalVector);
+				obj.normals.push_back(normalVector);
 			
 				for (auto& vertex : polygon)
 				{
-					vertex.normal() = _M_ObjectInfo.normals.size(); // set the normal index to the newly generated vector
+					vertex.normal() = obj.normals.size(); // set the normal index to the newly generated vector
 					if (group->enabled) // save a pointer to the index to compute smooth shading later
 						storage[vertex.position()].push_back(vertex.data() + 2);
 				}
@@ -116,13 +118,13 @@ Model::Model(const std::string& path)
 				/* Compute the average of all the face normals the vertex belong to */
 				glm::vec3 smoothed(0.f);
 				for (auto index = vertex->second.begin(); index != vertex->second.end(); index++)
-					smoothed += _M_ObjectInfo.normals[**index - 1];
+					smoothed += obj.normals[**index - 1];
 				smoothed = glm::normalize(smoothed);
 
 				/* Set this new normal vector for the vertex */
-				_M_ObjectInfo.normals.push_back(smoothed);
+				obj.normals.push_back(smoothed);
 				for (auto index = vertex->second.begin(); index != vertex->second.end(); index++)
-					**index = _M_ObjectInfo.normals.size();
+					**index = obj.normals.size();
 			}
 		}
 
@@ -140,10 +142,10 @@ Model::Model(const std::string& path)
 					polygon[i].uv() = textureIndex;
 
 				/* Create a new vertex from the indices in the face component of the object file */
-				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 0 + vertexIndex) * 3, _M_ObjectInfo.vertices, polygon[i].position());
-				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 1 + vertexIndex) * 3, _M_ObjectInfo.textures, polygon[i].uv());
-				_insertVertexAttribute(vxBuffer, (_M_ObjectInfo.vertexCount * 2 + vertexIndex) * 3, _M_ObjectInfo.normals, polygon[i].normal());
-				vxBuffer[_M_ObjectInfo.vertexCount * 4 * 3 + vertexIndex] = (polygon.mtl ? polygon.mtl->id + 1: 0);
+				_insertVertexAttribute(vxBuffer, (obj.vertexCount * 0 + vertexIndex) * 3, obj.vertices, polygon[i].position());
+				_insertVertexAttribute(vxBuffer, (obj.vertexCount * 1 + vertexIndex) * 3, obj.textures, polygon[i].uv());
+				_insertVertexAttribute(vxBuffer, (obj.vertexCount * 2 + vertexIndex) * 3, obj.normals, polygon[i].normal());
+				vxBuffer[obj.vertexCount * 4 * 3 + vertexIndex] = (polygon.mtl ? polygon.mtl->id + 1: 0);
 
 				_M_Palette.push(greyColor);
 				if (isTriangle)
@@ -213,18 +215,18 @@ Model::Model(const std::string& path)
 	{
 		GLCall(glEnableVertexAttribArray(i));
 		GLCall(glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 0, (const char*)(offset)));
-		offset += _M_ObjectInfo.vertexCount * 3 * sizeof(float);
+		offset += obj.vertexCount * 3 * sizeof(float);
 	}
 	GLCall(glEnableVertexAttribArray(4));
 	GLCall(glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 0, (const char*)(offset)));
 
 	/* Create a buffer with materials data */
 	std::vector<Material::Uniform> materials(1, Material().getUniformData());
-	materials.resize(_M_ObjectInfo.materials.size() + 1);
+	materials.resize(obj.materials.size() + 1);
 	int i = 0;
 	for (
-		auto mtl = _M_ObjectInfo.materials.begin();
-		mtl != _M_ObjectInfo.materials.end() && i < MAX_MATERIALS - 1;
+		auto mtl = obj.materials.begin();
+		mtl != obj.materials.end() && i < MAX_MATERIALS - 1;
 		mtl++, i++
 	) {
 		const auto idx = mtl->second.id + 1;
