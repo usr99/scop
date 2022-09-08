@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 21:02:22 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/07 21:34:08 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 int main(int ac, char **av)
 {
 	bool error = false;
+	bool imguiInitialized = false;
 
 	try
 	{
@@ -59,6 +60,7 @@ int main(int ac, char **av)
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 330");
 		ImGui::StyleColorsDark();
+		imguiInitialized = true;
 
 		GLCall(glEnable(GL_DEPTH_TEST)); // enable depth buffer
 		GLCall(glEnable(GL_BLEND)); // enable blending
@@ -74,9 +76,12 @@ int main(int ac, char **av)
 	}
 
 	/* Destroy ImGui context */
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
+	if (imguiInitialized)
+	{
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
+	}	
 
 	/* Free GLFW */
     glfwTerminate();
@@ -247,34 +252,32 @@ void showSettingsWindow(Settings& settings, Model& object, LightSource& light, A
 
 	if (tab == 0)
 	{
-			ImGui::SliderInt(
-				"shader presets",
-				reinterpret_cast<int *>(&settings.current),
-				0, 2, Settings::SHADERS[settings.current]);
+		ImGui::SliderInt(
+			"shader presets",
+			reinterpret_cast<int *>(&settings.current),
+			0, 2, Settings::SHADERS[settings.current]);
 
-			ImGui::RadioButton("triangles", &settings.primitive, GL_TRIANGLES);
-			ImGui::SameLine();
-			ImGui::RadioButton("wireframe", &settings.primitive, GL_LINE_STRIP);
-			ImGui::SameLine();
-			ImGui::RadioButton("dots", &settings.primitive, GL_POINTS);
-			ImGui::BeginDisabled(settings.primitive != GL_POINTS);
-			if (ImGui::SliderInt("size", &settings.dotsize, 1, 10))
-				GLCall(glPointSize(settings.dotsize));
-			ImGui::EndDisabled();
+		ImGui::RadioButton("triangles", &settings.primitive, GL_TRIANGLES);
+		ImGui::SameLine();
+		ImGui::RadioButton("dots", &settings.primitive, GL_POINTS);
+		ImGui::BeginDisabled(settings.primitive != GL_POINTS);
+		if (ImGui::SliderInt("size", &settings.dotsize, 1, 10))
+			GLCall(glPointSize(settings.dotsize));
+		ImGui::EndDisabled();
 
-			ImGui::BeginDisabled(settings.current != MATERIAL);
-			ImGui::ColorEdit3("background", (float *)&settings.background);
-			ImGui::EndDisabled();
+		ImGui::BeginDisabled(settings.current != MATERIAL);
+		ImGui::ColorEdit3("background", (float *)&settings.background);
+		ImGui::EndDisabled();
 	}
 	else
 	{
-			object.showSettingsPanel();
-			if (ImGui::Checkbox("toggle free orbit", &settings.freeOrbit))
-			{
-				camera.reset();
-				settings.lastRotation = std::chrono::system_clock::now(); // avoid big rotations when free orbit is toggled off
-			}
-			light.showSettingsPanel();
+		object.showSettingsPanel();
+		if (ImGui::Checkbox("toggle free orbit", &settings.freeOrbit))
+		{
+			camera.reset();
+			settings.lastRotation = std::chrono::system_clock::now(); // avoid big rotations when free orbit is toggled off
+		}
+		light.showSettingsPanel();
 	}
 
 	ImGui::End();
