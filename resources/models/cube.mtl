@@ -1,0 +1,35 @@
+newmtl Front
+Ns 100
+Ks 0 0 1
+illum 2
+map_Kd front.bmp
+
+newmtl Back
+Ns 200
+Ks 0 1 0
+illum 2
+map_Kd back.bmp
+
+newmtl Right
+Ns 300
+Ks 0 1 1
+illum 2
+map_Kd right.bmp
+
+newmtl Left
+Ns 400
+Ks 1 0 0
+illum 2
+map_Kd left.bmp
+
+newmtl Up
+Ns 500
+Ks 1 0 1
+illum 2
+map_Kd top.bmp
+
+newmtl Down
+Ns 600
+Ks 1 1 0
+illum 2
+map_Kd bottom.bmp

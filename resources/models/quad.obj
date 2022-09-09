@@ -1,0 +1,27 @@
+v 0 0 0
+v 1 0 0
+v 1 1 0
+v 0 1 0
+
+v 0 0 1
+v 1 0 1
+v 1 1 1
+v 0 1 1
+
+# front
+f 1 2 3 4 
+
+# back
+f 5 6 7 8
+
+# right
+f 2 3 7 6
+
+# left
+f 1 4 8 5
+
+# top
+f 3 4 8 7
+
+# bottom
+f 1 2 6 5

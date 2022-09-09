@@ -1,0 +1,12 @@
+# Blender MTL File: '42.blend'
+# Material Count: 1
+
+newmtl Material
+Ns 96.078431
+Ka 0.0000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 1.00000 0.00000 0.00000
+Ni 1.400000
+d 1.0
+illum 2
+map_Kd block.bmp

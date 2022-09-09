@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/15 00:29:49 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:05:11 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include <vector>
 
 # include "math.hpp"
+# include "ColorPalette.hpp"
+# include "ShaderProgram.hpp"
 
 class Model
 {
@@ -24,38 +26,25 @@ class Model
 
 		Model(const std::string& path);
 
-		void render();
+		void render(int primitives);
 		void showSettingsPanel();
 
-		void translate(const glm::vec3& direction);
-		void rotate(float angle, const glm::vec3& axis);
-		void scale(float factor);
+		void rotate(float angle);
 
-		inline const glm::mat4& getMatrix() const { return _M_ModelMatrix; };
+		ft::mat4 getMatrix() const;
 
 	private:
 
-		enum ColorModeSettings
-		{
-			RGB_MODE,
-			RANDOM_MODE,
-			GRADIENT_MODE
-		};
+		void _insertVertexAttribute(std::vector<float>& buffer, unsigned int offset, std::vector<ft::vec3>& from, unsigned int index);
 
-		void _insertVertexAttribute(std::vector<float>& buffer,int offset, std::vector<float>& from, int index);
-		char _getCurrentColorModeMask() const;
-		void _generateColorPalette();
+		unsigned int 	_M_VAO;
+		unsigned int 	_M_VertexBuffer;
+		unsigned int 	_M_IndexBuffer;
+		unsigned int	_M_UniformBuffer;
+		unsigned int	_M_IndicesCount;
 
-		unsigned int 			_M_VertexBuffer;
-		unsigned int 			_M_IndexBuffer;
-		int						_M_VerticesCount;
-		glm::mat4				_M_ModelMatrix;
-
-		bool					_M_ColorMode[3];
-		char					_M_ColorModeMask;					
-
-		// bool					_M_HasTexture;
-		// bool					_M_SmoothShadingEnabled;
+		ColorPalette	_M_Palette;
+		float			_M_RotationAngle;
 };
 
 #endif

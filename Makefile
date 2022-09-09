@@ -2,7 +2,7 @@
 #			GLOBAL VARIABLES DEFINITION			 #
 ##################################################
 
-TARGET	= scop
+TARGET	= scop.out
 
 CFLAGS	= -Wall -Wextra --std=c++11 -g # -Werror
 CC		= g++
@@ -12,7 +12,9 @@ INC 	= -I ./include				\
 			-I ./ftGraphics/include	\
 
 SRCDIR	= ./src/
-SRC		= scop.cpp Model.cpp parser.cpp ShaderProgram.cpp debug.cpp
+SRC		= scop.cpp Model.cpp ShaderProgram.cpp ArcballCamera.cpp LightSource.cpp ColorPalette.cpp debug.cpp \
+			parser.cpp Object.cpp Material.cpp BMPimage.cpp Skybox.cpp textures.cpp
+
 
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
@@ -23,7 +25,7 @@ LIBS	= -L libs -lglfw3 -lGLEW -limgui -lGL -lpthread -ldl -lX11
 #				COMPILATION RULES				 #
 ##################################################
 
-${OBJDIR}%.o: ${SRCDIR}%.cpp
+${OBJDIR}%.o: ${SRCDIR}%.cpp ./include/%.hpp
 	${CC} ${CFLAGS} -c $< ${INC} -o $@
 
 ${TARGET}: ${OBJDIR} ${OBJS} ${LIBFT}

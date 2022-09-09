@@ -6,245 +6,297 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/07/15 00:40:30 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/09 06:03:38 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fstream>
 #include <iostream>
-#include <functional>
 #include <stdexcept>
 #include <ctime>
+#include <deque>
+#include <map>
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
 #include "Model.hpp"
-#include "parser.hpp"
+#include "BMPimage.hpp"
 #include "debug.hpp"
+#include "textures.hpp"
+#include "Object.hpp"
 
-Model::Model(const std::string& path)
-	: _M_VerticesCount(0), _M_ModelMatrix(1.0f),
-		_M_ColorMode{ false }, _M_ColorModeMask(-1)
+Model::Model(const std::string& path) : _M_RotationAngle(0.f)
 {
-	/* Check file extension */
-	size_t extensionIndex = path.find(".obj", path.length() - 4);
-	if (extensionIndex == std::string::npos)
-		throw std::invalid_argument("Bad file extension, must be .obj");
+	Object obj(path);
 
-	/* Load 3D model */
-	std::ifstream file(path);
-	if (!file)
-		throw std::invalid_argument(path + " not found");
-	ObjectInfo obj = loadObjectFile(file);
-	file.close();
-	
-	/* Allocate enough memory to contain all vertices */
-	for (auto face : obj.faces)
-		_M_VerticesCount += face.size() / 3;
-	std::vector<float> vxBuffer(_M_VerticesCount * 12, 0.f);
+	/* Initialize RNG which is needed to generate faces colors */
+	std::srand(time(nullptr));
+
+	std::vector<float> vxBuffer(obj.vertexCount * 13, 0.f);
 	std::vector<unsigned int> idxBuffer;
-	idxBuffer.reserve(_M_VerticesCount);
-	
+	idxBuffer.reserve(obj.vertexCount);
+	_M_Palette.reserve(obj.vertexCount * 3);
+
+	/*
+	** Compute the translation vector to place the object at the center of the world space
+	** it also stores the most extreme coordinate (negative or not) to scale the object
+	*/
+	ft::vec3 mean;
+	float biggest = 0;
+	for (int i = 0; i < 3; i++)
+	{
+		mean[i] = -(obj.max[i] + obj.min[i]) / 2;
+		biggest = std::max(std::max(std::abs(obj.max[i]), std::abs(obj.min[i])), biggest);
+	}
+	float scalingFactor = 1 / biggest;
+	for (auto vertex = obj.vertices.begin(); vertex != obj.vertices.end(); vertex++)
+		*vertex = (*vertex + mean) * scalingFactor; // translate and scale the vertex coordinate to fit the range [-2;2]
+
 	/*
 	** Convert obj formatted data
 	** In a .obj file, the same coordinates can be used multiple times with different texture coordinates and normals
 	** In a OpenGL VBO, each vertex is a unique combination of these attributes
-	** Thus we have to copy some of the .obj face to create our vertices
+	** Thus we have to copy some of the faces to create our vertices
 	*/
 	unsigned int vertexIndex = 0;
 	unsigned int faceIndex = 0;
+	unsigned int lastIndex = 0;
 
-	for (auto face : obj.faces)
+	/* Generate texture coordinates if not provided in the file */
+	if (obj.textures.size() == 0)
 	{
-		bool isTriangle = (face.size() == 3 * 3);
-
-		for (unsigned int i = 0; i < face.size(); i += 3)
-		{
-			/* Create a new vertex from the indices in the face component of the object file */
-			_insertVertexAttribute(vxBuffer, (_M_VerticesCount * 0 + vertexIndex) * 3, obj.vertices, face[i]);
-			_insertVertexAttribute(vxBuffer, (_M_VerticesCount * 1 + vertexIndex) * 3, obj.textures, face[i + 1]);
-			_insertVertexAttribute(vxBuffer, (_M_VerticesCount * 2 + vertexIndex) * 3, obj.normals, face[i + 2]);
-			if (isTriangle)
-				idxBuffer.push_back(vertexIndex);
-			vertexIndex++;
-		}
-		faceIndex++;
-
-		// if (!isTriangle)
+		ft::vec3 coordinates[4] = {
+			ft::vec3({ 1.f, 0.f, 0.f }),
+			ft::vec3({ 1.f, 1.f, 0.f }),
+			ft::vec3({ 0.f, 1.f, 0.f }),
+			ft::vec3({ 0.f, 0.f, 0. })
+		};
+		obj.textures.insert(obj.textures.end(), coordinates, coordinates + 4);
 	}
+
+	for (auto group = obj.groups.begin(); group != obj.groups.end(); group++)
+	{
+		/* Generate face normals for the polygons missing them */
+		std::map<unsigned int, std::list<unsigned int*>> storage;
+		for (auto& polygon : group->polygons)
+		{
+			/* Check that every vertex has a normal vector */
+			bool isMissingNormalVector = true;
+			for (size_t i = 0; i < polygon.size(); i++)
+			{
+				if (polygon[i].normal() != 0)
+					isMissingNormalVector = false;
+			}
+
+			/*
+			** If that's not the case generate it
+			** 3 vertices make a plane, compute the perpendicular vector of this plane
+			** using the cross product
+			*/
+			if (isMissingNormalVector)
+			{
+				ft::vec3 points[3];
+				for (int i = 0; i < 3; i++)
+					std::copy_n(&obj.vertices[(polygon[i].position() - 1)], 1, &points[i]);
+				ft::vec3 normalVector = cross_product(points[0] - points[1], points[0] - points[2]);
+				obj.normals.push_back(normalize(normalVector));
+			
+				for (auto& vertex : polygon)
+				{
+					vertex.normal() = obj.normals.size(); // set the normal index to the newly generated vector
+					if (group->enabled) // save a pointer to the index to compute smooth shading later
+						storage[vertex.position()].push_back(vertex.data() + 2);
+				}
+			}
+		}
+
+		if (group->enabled) // smooth shading enabled
+		{
+			for (auto vertex = storage.begin(); vertex != storage.end(); vertex++)
+			{
+				/* Compute the average of all the face normals the vertex belong to */
+				ft::vec3 smoothed;
+				for (auto index = vertex->second.begin(); index != vertex->second.end(); index++)
+					smoothed += obj.normals[**index - 1];
+				smoothed = normalize(smoothed);
+
+				/* Set this new normal vector for the vertex */
+				obj.normals.push_back(smoothed);
+				for (auto index = vertex->second.begin(); index != vertex->second.end(); index++)
+					**index = obj.normals.size();
+			}
+		}
+
+		for (auto polygon : group->polygons)
+		{
+			bool isTriangle = (polygon.size() == 3);
+			const float greyColor = (static_cast<float>(std::rand()) / RAND_MAX) * 0.4f + 0.1f;
+			unsigned int textureIndex = 0;
+
+			for (unsigned int i = 0; i < polygon.size(); i++)
+			{
+				/* same for texture coordinates */
+				textureIndex = textureIndex % 4 + 1;
+				if (polygon[i].uv() == 0)
+					polygon[i].uv() = textureIndex;
+
+				/* Create a new vertex from the indices in the face component of the object file */
+				_insertVertexAttribute(vxBuffer, (obj.vertexCount * 0 + vertexIndex) * 3, obj.vertices, polygon[i].position());
+				_insertVertexAttribute(vxBuffer, (obj.vertexCount * 1 + vertexIndex) * 3, obj.textures, polygon[i].uv());
+				_insertVertexAttribute(vxBuffer, (obj.vertexCount * 2 + vertexIndex) * 3, obj.normals, polygon[i].normal());
+				vxBuffer[obj.vertexCount * 4 * 3 + vertexIndex] = (polygon.mtl ? polygon.mtl->id + 1: 0);
+
+				_M_Palette.push(greyColor);
+				if (isTriangle)
+					idxBuffer.push_back(vertexIndex);
+
+				vertexIndex++;
+			}
+
+			/*
+			** With non-triangle polygons, it is needed to divide them into triangles
+			** faces indices are used to create triangles inside the polygon
+			** it is done in a way similar to the GL_TRIANGLE_STRIP rendering mode
+			*/
+			if (!isTriangle)
+			{
+				std::deque<unsigned int> indices({1, 0, 2}); // first triangle is 1 0 2
+				const int nbTriangles = polygon.size() - 2;
+				int direction = -1;
+
+				for (int i = 0; i < nbTriangles; i++)
+				{
+					/*
+					** Insert indices into the buffer
+					** each time lastIndex is added because until now we worked with indices starting from 0
+					** but we need to take into account previous faces
+					*/
+					std::for_each(indices.begin(), indices.end(), [&](unsigned int value)
+								  { idxBuffer.push_back(value + lastIndex); });
+					indices.pop_front(); // the last two indices are kept for the next triangle
+
+					/* The third index is equal to the first one +/-1 */
+					int nextIndex = indices[0] + direction;
+					if (nextIndex < 0) // index == 0 - 1
+						nextIndex = polygon.size() - 1;
+
+					indices.push_back(nextIndex);
+					direction *= -1;
+				}
+			}
+
+			faceIndex++;
+			lastIndex += polygon.size();
+		}
+	}
+
+	/* Create Vertex Array Object */
+	GLCall(glGenVertexArrays(1, &_M_VAO));
+	GLCall(glBindVertexArray(_M_VAO));
 
 	/* Create VBOs from converted data */
 	GLCall(glGenBuffers(1, &_M_VertexBuffer));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, _M_VertexBuffer));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, vxBuffer.size() * sizeof(float), vxBuffer.data(), GL_STATIC_DRAW));
 
+	_M_IndicesCount = idxBuffer.size();
 	GLCall(glGenBuffers(1, &_M_IndexBuffer));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _M_IndexBuffer));
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxBuffer.size() * sizeof(unsigned int), idxBuffer.data(), GL_STATIC_DRAW));
+	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, _M_IndicesCount * sizeof(unsigned int), idxBuffer.data(), GL_STATIC_DRAW));
 
 	/*
 	** Set vertex layout
 	** the attributes are tightly packed in the buffer, as specified by the stride of 0
-	** respectively vertex coordinates, textures coordinates, normals and colors
+	** respectively vertex coordinates, textures coordinates, normals, colors and material indices
 	*/
 	size_t offset = 0;
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		GLCall(glEnableVertexAttribArray(i));
 		GLCall(glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 0, (const char*)(offset)));
-		offset += _M_VerticesCount * 3 * sizeof(float);
+		offset += obj.vertexCount * 3 * sizeof(float);
+	}
+	GLCall(glEnableVertexAttribArray(4));
+	GLCall(glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 0, (const char*)(offset)));
+
+	/* Create a buffer with materials data */
+	std::vector<Material::Uniform> materials(1, Material().getUniformData());
+	materials.resize(obj.materials.size() + 1);
+	int i = 0;
+	for (
+		auto mtl = obj.materials.begin();
+		mtl != obj.materials.end() && i < MAX_MATERIALS - 1;
+		mtl++, i++
+	) {
+		const auto idx = mtl->second.id + 1;
+		if (idx < MAX_MATERIALS)
+		{
+			materials[idx] = mtl->second.getUniformData();
+			if (idx < MAX_TEXTURES)
+				loadTexture(mtl->second.texture, idx);
+		}
 	}
 
-	/* Initialize RNG which is needed to randomly generate faces colors */
-	std::srand(time(nullptr));
+	/* Set materials data into a Uniform Buffer Object (UBO) */
+	GLCall(glGenBuffers(1, &_M_UniformBuffer));
+	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, _M_UniformBuffer));
+	GLCall(glBufferData(GL_UNIFORM_BUFFER, sizeof(Material::Uniform) * materials.size(), materials.data(), GL_STATIC_DRAW));
+	
+	/* Bind the UBO to the binding index 0 */
+	GLCall(glBindBufferBase(GL_UNIFORM_BUFFER, 0, _M_UniformBuffer));
 }
 
 void
-Model::render()
+Model::render(int primitives)
 {
-	/* Generate a new array of color attributes for the vertices if the settings have changed */
-	char colorMask = _getCurrentColorModeMask();
-	if (colorMask != _M_ColorModeMask)
-	{
-		_generateColorPalette();
-		_M_ColorModeMask = colorMask;
-	}
+	GLCall(glBindVertexArray(_M_VAO));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, _M_VertexBuffer));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _M_IndexBuffer));
 
-	GLCall(glDrawElements(GL_TRIANGLES, _M_VerticesCount, GL_UNSIGNED_INT, 0));
+	_M_Palette.update();
+	GLCall(glDrawElements(primitives, _M_IndicesCount, GL_UNSIGNED_INT, 0));
 }
 
 void
 Model::showSettingsPanel()
 {
-	ImGui::Begin("Settings");
-
-	ImGui::Checkbox("Colored ?", _M_ColorMode);
-	ImGui::Checkbox("Random colors ?", _M_ColorMode + 1);
-	
-	ImGui::BeginDisabled(!_M_ColorMode[RANDOM_MODE]);
-	ImGui::Checkbox("Gradient mode ?", _M_ColorMode + 2);
-	ImGui::EndDisabled();
-
-	ImGui::End();
+	_M_Palette.showSettings();
 }
 
 void
-Model::translate(const glm::vec3& direction)
+Model::rotate(float angle)
 {
-	_M_ModelMatrix = glm::translate(_M_ModelMatrix, direction);
+	_M_RotationAngle += ft::radians(angle);
+	if (_M_RotationAngle > 2 * M_PI)
+		_M_RotationAngle = 0.f;
 }
 
-void
-Model::rotate(float angle, const glm::vec3& axis)
+ft::mat4
+Model::getMatrix() const
 {
-	_M_ModelMatrix = glm::rotate(_M_ModelMatrix, glm::radians(angle), axis);
-}
+	ft::mat4 matrix;
+	const ft::vec3 axis({ 0.f, 1.f, 0.f });
 
-void
-Model::scale(float factor)
-{
-	_M_ModelMatrix = glm::scale(_M_ModelMatrix, glm::vec3(factor, factor, factor));
+	if (_M_RotationAngle != 0.f)
+		matrix = ft::rotate(matrix, _M_RotationAngle, axis);
+	return matrix;
 }
 
 void
 Model::_insertVertexAttribute(
-	std::vector<float>& buffer,	// vertex buffer where the data is inserted
-	int offset, 				// starting position of the inserted data
-	std::vector<float>& from,	// source array from which the vertices are copied
-	int index					// starting position from where to copy
+	std::vector<float>& buffer,		// vertex buffer where the data is inserted
+	unsigned int offset, 			// starting position of the inserted data
+	std::vector<ft::vec3>& from,	// source array from which the vertices are copied
+	unsigned int index				// starting position from where to copy
 ) {
+	if (index > from.size())
+		throw std::runtime_error("Invalid face index found in .obj file");
+
 	if (index != 0)
 	{
 		index--;
-		std::copy_n(from.begin() + index * 3, 3, buffer.begin() + offset);
+		std::copy_n(reinterpret_cast<float*>(from.data() + index), 3, buffer.begin() + offset);
 	}
-}
-
-char
-Model::_getCurrentColorModeMask() const
-{
-	return _M_ColorMode[RGB_MODE] | _M_ColorMode[RANDOM_MODE] << 1 | _M_ColorMode[GRADIENT_MODE] << 2;
-}
-
-void
-Model::_generateColorPalette()
-{
-	std::vector<float> palette;
-	palette.reserve(_M_VerticesCount * 3);
-
-	float colorStep = (_M_ColorMode[GRADIENT_MODE] ? 1.f : 3.f) / static_cast<float>(_M_VerticesCount);
-	float currentColor = colorStep;
-	std::function<void(std::array<float, 3> &)> generateColorFunc;
-
-	if (_M_ColorMode[RGB_MODE])
-	{
-		if (_M_ColorMode[RANDOM_MODE])
-		{
-			// red and green components are random, blue is 1
-			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
-			{
-				rgb[2] = 1.f;
-				for (int j = 0; j < 2; j++)
-					rgb[j] = static_cast<float>(std::rand()) / RAND_MAX;
-			};
-		}
-		else
-		{
-			// blue component is set incrementally with the others set at 1
-			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
-			{
-				rgb[2] = currentColor;
-				currentColor += colorStep;
-			};
-		}
-	}
-	else
-	{
-		if (_M_ColorMode[RANDOM_MODE])
-		{
-			// random shade of grey
-			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
-			{
-				rgb.fill(static_cast<float>(std::rand()) / RAND_MAX);
-			};
-		}
-		else
-		{
-			// starting from black, slowly increment until it is white
-			generateColorFunc = [&currentColor, colorStep](std::array<float, 3> &rgb)
-			{
-				rgb.fill(currentColor);
-				currentColor += colorStep;
-			};
-		}
-	}
-
-	for (size_t i = 0; i < palette.capacity(); i += 3)
-	{
-		std::array<float, 3> rgb = {0.f};
-		generateColorFunc(rgb);
-
-		if (_M_ColorMode[GRADIENT_MODE]) // only write the color for one vertex
-			palette.insert(palette.end(), rgb.begin(), rgb.end());
-		else // write the color for the whole triangle
-		{
-			for (int j = 0; j < 3; j++)
-				palette.insert(palette.end(), rgb.begin(), rgb.end());
-			i += 6;
-		}
-	}
-
-	/*
-	** Copy the new array to GPU memory for later rendering
-	** only the last quarter of the buffer is written
-	*/
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, _M_VertexBuffer));
-	GLCall(glBufferSubData(
-		GL_ARRAY_BUFFER,
-		sizeof(float) * _M_VerticesCount * 3 * 3,
-		sizeof(float) * _M_VerticesCount * 3,
-		palette.data())
-	);
 }
