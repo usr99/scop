@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 21:36:22 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:10:40 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ Model::Model(const std::string& path) : _M_RotationAngle(0.f)
 	** Compute the translation vector to place the object at the center of the world space
 	** it also stores the most extreme coordinate (negative or not) to scale the object
 	*/
-	glm::vec3 mean;
+	ft::vec3 mean;
 	float biggest = 0;
 	for (int i = 0; i < 3; i++)
 	{
@@ -66,11 +66,11 @@ Model::Model(const std::string& path) : _M_RotationAngle(0.f)
 	/* Generate texture coordinates if not provided in the file */
 	if (obj.textures.size() == 0)
 	{
-		glm::vec3 coordinates[4] = {
-			glm::vec3(1.f, 0.f, 0.f),
-			glm::vec3(1.f, 1.f, 0.f),
-			glm::vec3(0.f, 1.f, 0.f),
-			glm::vec3(0.f, 0.f, 0.)
+		ft::vec3 coordinates[4] = {
+			ft::vec3({ 1.f, 0.f, 0.f }),
+			ft::vec3({ 1.f, 1.f, 0.f }),
+			ft::vec3({ 0.f, 1.f, 0.f }),
+			ft::vec3({ 0.f, 0.f, 0. })
 		};
 		obj.textures.insert(obj.textures.end(), coordinates, coordinates + 4);
 	}
@@ -96,11 +96,11 @@ Model::Model(const std::string& path) : _M_RotationAngle(0.f)
 			*/
 			if (isMissingNormalVector)
 			{
-				glm::vec3 points[3];
+				ft::vec3 points[3];
 				for (int i = 0; i < 3; i++)
 					std::copy_n(&obj.vertices[(polygon[i].position() - 1)], 1, &points[i]);
-				glm::vec3 normalVector = glm::normalize(glm::cross(points[0] - points[1], points[0] - points[2]));
-				obj.normals.push_back(normalVector);
+				ft::vec3 normalVector = cross_product(points[0] - points[1], points[0] - points[2]);
+				obj.normals.push_back(normalize(normalVector));
 			
 				for (auto& vertex : polygon)
 				{
@@ -116,10 +116,10 @@ Model::Model(const std::string& path) : _M_RotationAngle(0.f)
 			for (auto vertex = storage.begin(); vertex != storage.end(); vertex++)
 			{
 				/* Compute the average of all the face normals the vertex belong to */
-				glm::vec3 smoothed(0.f);
+				ft::vec3 smoothed;
 				for (auto index = vertex->second.begin(); index != vertex->second.end(); index++)
 					smoothed += obj.normals[**index - 1];
-				smoothed = glm::normalize(smoothed);
+				// smoothed = normalize(smoothed);
 
 				/* Set this new normal vector for the vertex */
 				obj.normals.push_back(smoothed);
@@ -267,19 +267,19 @@ Model::showSettingsPanel()
 void
 Model::rotate(float angle)
 {
-	_M_RotationAngle += glm::radians(angle);
+	_M_RotationAngle += ft::radians(angle);
 	if (_M_RotationAngle > 2 * M_PI)
 		_M_RotationAngle = 0.f;
 }
 
-glm::mat4
+ft::mat4
 Model::getMatrix() const
 {
-	glm::mat4 matrix(1.f);
-	const glm::vec3 axis(0.f, 1.f, 0.f);
+	ft::mat4 matrix;
+	const ft::vec3 axis({ 0.f, 1.f, 0.f });
 
 	if (_M_RotationAngle != 0.f)
-		matrix = glm::rotate(matrix, _M_RotationAngle, axis);
+		matrix = ft::rotate(matrix, _M_RotationAngle, axis);
 	return matrix;
 }
 
@@ -287,7 +287,7 @@ void
 Model::_insertVertexAttribute(
 	std::vector<float>& buffer,		// vertex buffer where the data is inserted
 	unsigned int offset, 			// starting position of the inserted data
-	std::vector<glm::vec3>& from,	// source array from which the vertices are copied
+	std::vector<ft::vec3>& from,	// source array from which the vertices are copied
 	unsigned int index				// starting position from where to copy
 ) {
 	if (index > from.size())

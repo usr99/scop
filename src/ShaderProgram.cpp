@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:37:56 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 01:57:26 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:25:51 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,13 +76,7 @@ ShaderProgram::setUniform3f(const std::string& name, float v0, float v1, float v
 }
 
 void
-ShaderProgram::setUniformVec3f(const std::string& name, const glm::vec3& value)
-{
-	GLCall(glUniform3f(_getUniformLocation(name), value.x, value.y, value.z));
-}
-
-void
-ShaderProgram::setUniformVec3f(const std::string& name, const vec3& value)
+ShaderProgram::setUniformVec3f(const std::string& name, const ft::vec3& value)
 {
 	GLCall(glUniform3f(_getUniformLocation(name), value.x(), value.y(), value.z()));
 }
@@ -94,9 +88,9 @@ ShaderProgram::setUniform4f(const std::string& name, float v0, float v1, float v
 }
 
 void
-ShaderProgram::setUniformMat4f(const std::string& name, const glm::mat4& matrix)
+ShaderProgram::setUniformMat4f(const std::string& name, const ft::mat4& matrix)
 {
-	GLCall(glUniformMatrix4fv(_getUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
+	GLCall(glUniformMatrix4fv(_getUniformLocation(name), 1, GL_TRUE, &matrix[0][0]));
 }
 
 void

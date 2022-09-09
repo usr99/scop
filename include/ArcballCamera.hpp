@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:19:47 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/05 20:31:10 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:46:35 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # include "math.hpp"
 
-# define INIT_POSITION 	glm::vec3(0.f, 0.f, -5.f)
+# define INIT_POSITION 	ft::vec3({ 0.f, 0.f, -5.f })
 # define ZOOM_MIN 		0.3f
 # define ZOOM_MAX 		3.0f
 
@@ -25,29 +25,28 @@ class ArcballCamera
 
 		ArcballCamera(float width, float height);
 		
-		void rotate(glm::vec2 angle);
+		void rotate(ft::vec2 angle);
 		void translate(float x, float y);
 		void zoom(float value);
 		void reset();
 
-		glm::mat4 getProjectionMatrix() const;
-		glm::mat4 getViewMatrix() const;
-		glm::mat4 getMatrix() const;
-		glm::vec3 getPosition() const;
+		ft::mat4 getProjectionMatrix() const;
+		ft::mat4 getViewMatrix() const;
+		ft::mat4 getMatrix() const;
+		ft::vec3 getPosition() const;
 
 	private:
 
-		/* transpose is needed to go from column-major to row-major matrices */
-		inline glm::vec3 _getOrientation() { return -glm::transpose(_M_ViewMatrix)[2]; }
-		inline glm::vec3 _getRightVector() { return glm::transpose(_M_ViewMatrix)[0]; }
+		inline ft::vec3 _getOrientation() { return -(_M_ViewMatrix[2]); }
+		inline ft::vec3 _getRightVector() { return _M_ViewMatrix[0]; }
 		void _updateViewMatrix();
 
-		glm::mat4	_M_ProjectionMatrix;
-		glm::mat4	_M_ViewMatrix;
-		glm::vec3	_M_Eye;
-		glm::vec3	_M_LookAt;
-		glm::vec3	_M_UpVector;
-		glm::vec3	_M_TranslationVector;
+		ft::mat4	_M_ProjectionMatrix;
+		ft::mat4	_M_ViewMatrix;
+		ft::vec3	_M_Eye;
+		ft::vec3	_M_LookAt;
+		ft::vec3	_M_UpVector;
+		ft::vec3	_M_TranslationVector;
 		float		_M_Zoom;
 };
 

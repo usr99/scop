@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/02 19:52:33 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/06 17:05:27 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:04:24 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,9 +150,9 @@ float parseFloat1(const LineElements& elements)
 	return std::stof(elements[1]);
 }
 
-vec3 parseFloat3(const LineElements& elements)
+ft::vec3 parseFloat3(const LineElements& elements)
 {
-	vec3 result;
+	ft::vec3 result;
 
 	if (elements.size() != 4)
 		throw std::invalid_argument("incorrect number of components for " + elements[0] + " statement");

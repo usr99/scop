@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:36:27 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/06 18:41:13 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:07:36 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,9 @@ class ShaderProgram
 		void setUniform1ui(const std::string& name, unsigned int value);
 		void setUniform1f(const std::string& name, float value);
 		void setUniform3f(const std::string& name, float v0, float v1, float v2);
-		void setUniformVec3f(const std::string& name, const glm::vec3& value);
-		void setUniformVec3f(const std::string& name, const vec3& value);
+		void setUniformVec3f(const std::string& name, const ft::vec3& value);
 		void setUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
-		void setUniformMat4f(const std::string& name, const glm::mat4& matrix);
+		void setUniformMat4f(const std::string& name, const ft::mat4& matrix);
 		void setUniformBlock(const std::string& name, unsigned int binding);
 
 	private:

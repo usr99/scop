@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/02 19:35:40 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 19:40:22 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:20:59 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ Material::getUniformData() const
 {
 	Uniform result;
 
-	result.ambient = vec4(ambientColor, 1.f);
-	result.diffuse = vec4(diffuseColor, 1.f);
-	result.specular = vec4(specularColor, 1.f);
+	result.ambient = ft::vec4(ambientColor, 1.f);
+	result.diffuse = ft::vec4(diffuseColor, 1.f);
+	result.specular = ft::vec4(specularColor, 1.f);
 
 	result.shininess = specularExponent;
 	result.refraction = refraction;

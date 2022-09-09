@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 13:52:45 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 19:52:53 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:04:24 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ struct Settings
 	using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
 
 	ShaderType current;
-	vec3 background;
+	ft::vec3 background;
 	int primitive;
 	int dotsize;
 

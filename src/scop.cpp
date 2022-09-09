@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:00:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 21:34:08 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:43:17 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include "BMPimage.hpp"
 #include "Skybox.hpp"
 #include "textures.hpp"
+
+# if 1
 
 int main(int ac, char **av)
 {
@@ -115,7 +117,7 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 	skyboxShader.setUniform1i("uCubemap", 0);
 
 	Settings settings = {
-		.current = ShaderType::MATERIAL, .background = vec3({ 0.1f, 0.1f, 0.1f }),
+		.current = ShaderType::MATERIAL, .background = ft::vec3({ 0.1f, 0.1f, 0.1f }),
 		.primitive = GL_TRIANGLES, .dotsize = 1,
 		.freeOrbit = false, .lastRotation = std::chrono::system_clock::now(),
 		.textured = false, .opacity = 0.f, .lastTransition = std::chrono::system_clock::now()
@@ -149,7 +151,10 @@ void renderingLoop(GLFWwindow* window, const char* objectPath)
 			/* Render skybox */
 			skyboxShader.bind();
 			auto view = camera.getViewMatrix();
-			view[3] = glm::vec4(0.f, 0.f, 0.f, 1.0f); // cancel translation
+			view[0][3] = 0.f; // cancel translation
+			view[1][3] = 0.f; // cancel translation
+			view[2][3] = 0.f; // cancel translation
+			view[3][3] = 1.f; // cancel translation
 			skyboxShader.setUniformMat4f("uCamera", camera.getProjectionMatrix() * view);
 			skybox.render();
 
@@ -201,13 +206,13 @@ void handleMouseInputs(ArcballCamera& camera, bool isFreeOrbitEnabled)
 			ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (isFreeOrbitEnabled)
 			{
-				glm::vec2 angle;
-				angle.x = delta.x * (2 * M_PI / WIN_W);
-				angle.y = delta.y * (M_PI / WIN_H);
+				ft::vec2 angle;
+				angle.x() = delta.x * (2 * M_PI / WIN_W);
+				angle.y() = delta.y * (M_PI / WIN_H);
 				camera.rotate(angle);
 			}
 			else
-				camera.translate(delta.x / -100.f, delta.y / -100.f); // divide by 100 to slow the movement
+				camera.translate(delta.x / -200.f, delta.y / -200.f); // divide by 200 to slow the movement
 			ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 		}
 		camera.zoom(ImGui::GetIO().MouseWheel);
@@ -302,3 +307,75 @@ void handleTime(Settings& settings, Model& object)
 		settings.opacity = std::max(0.f, settings.opacity);
 	}
 }
+
+# else
+
+# include "math.hpp"
+
+void print_vec3(const glm::vec3& v)
+{
+	std::cout << '[';
+	for (int i = 0; i < 3; i++)
+		std::cout << v[i] << ", ";
+	std::cout << "]\n";	
+}
+
+void print_vec4(const glm::vec4& v)
+{
+	std::cout << '[';
+	for (int i = 0; i < 4; i++)
+		std::cout << v[i] << ' ';
+	std::cout << "]\n";	
+}
+
+void print_mat4(const glm::mat4& m)
+{
+	for (int i = 0; i < 4; i++)
+		print_vec4(m[i]);
+	std::cout << '\n';
+}
+
+int main()
+{
+	{
+		// glm::ft::vec3 a(1, 0, 0);
+		// glm::ft::vec3 b = glm::rotate(a, radians(90.f), glm::ft::vec3(0, 1, 0));
+		// glm::ft::vec3 c = glm::rotate(a, radians(90.f), glm::ft::vec3(0, 0, 1));
+
+		// glm::ft::mat4 rotA = glm::rotate(radians(90.f), glm::ft::vec3(0.18, 1.25, -0.75));
+		// glm::ft::mat4 rotB = glm::rotate(radians(90.f), glm::ft::vec3(3.18, 1.25, -5.75));
+		// glm::ft::mat4 rotC = glm::rotate(radians(90.f), glm::ft::vec3(4.18, -1.25, 2.75));
+
+		std::cout << std::setprecision(15);
+
+		print_mat4(glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(), glm::vec3(0, 1, 0)));
+		// print_ft::mat4(rotB);
+		// print_ft::mat4(rotC);
+		// print_ft::vec3(a);
+		// print_ft::vec3(b);
+		// print_ft::vec3(c);
+	}
+
+	{
+		// ft::mat4 a = rotate(ft::mat4(), radians(90.f), ft::vec3({0.18, 1.25, -0.75}));
+		// ft::mat4 b = rotate(ft::mat4(), radians(90.f), ft::vec3({3.18, 1.25, -5.75}));
+		// ft::mat4 c = rotate(ft::mat4(), radians(90.f), ft::vec3({4.18, -1.25, 2.75}));
+
+		// ft::vec3 a({1, 0, 0});
+		// ft::vec3 b = rotate(a, radians(90.f), ft::vec3({0, 1, 0}));
+		// ft::vec3 c = rotate(a, radians(90.f), ft::vec3({0, 0, 1}));
+		// ft::vec3 b = rotateY(90.f) * ft::vec4(a, 1.f);
+		// ft::vec3 c = rotateX(90.f) * ft::vec4(b, 1.f);
+
+		std::cout << ft::lookAt<float>(ft::vec3(INIT_POSITION), ft::vec3(), ft::vec3({0, 1, 0})).transpose() << '\n';
+		// std::cout << b << '\n';
+		// std::cout << c << '\n';
+
+		// std::cout << rotate(radians(90.f), ft::vec3({ 1, 0, 0 })).transpose() << '\n';
+		// std::cout << rotate(radians(90.f), ft::vec3({ 0, 1, 0 })).transpose() << '\n';
+		// std::cout << rotate(radians(90.f), ft::vec3({ 0, 0, 1 })).transpose() << '\n';
+		// std::cout << c << '\n';
+	}
+}
+
+#endif

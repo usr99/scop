@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/02 19:28:20 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 19:40:25 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:09:01 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,9 @@ struct Material
 
 	struct Uniform
 	{
-		vec4 ambient;
-		vec4 diffuse;
-		vec4 specular;
+		ft::vec4 ambient;
+		ft::vec4 diffuse;
+		ft::vec4 specular;
 
 		float shininess;
 		float refraction;
@@ -35,9 +35,9 @@ struct Material
 	Uniform getUniformData() const;
 
 	unsigned int id;
-	vec3 ambientColor;
-	vec3 diffuseColor;
-	vec3 specularColor;
+	ft::vec3 ambientColor;
+	ft::vec3 diffuseColor;
+	ft::vec3 specularColor;
 	float specularExponent;
 	float refraction;
 	float opacity;

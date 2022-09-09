@@ -25,11 +25,3 @@ make
 ```
 ./scop [path/to/obj/file]
 ```
-
-## Temporary dependency installation
-```
-cd scop/include
-git clone https://github.com/g-truc/glm.git tmp
-mv tmp/glm .
-rm -rf tmp
-```

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:10:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/07 21:36:28 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 20:05:11 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,11 @@ class Model
 
 		void rotate(float angle);
 
-		glm::mat4 getMatrix() const;
+		ft::mat4 getMatrix() const;
 
 	private:
 
-		void _insertVertexAttribute(std::vector<float>& buffer, unsigned int offset, std::vector<glm::vec3>& from, unsigned int index);
+		void _insertVertexAttribute(std::vector<float>& buffer, unsigned int offset, std::vector<ft::vec3>& from, unsigned int index);
 
 		unsigned int 	_M_VAO;
 		unsigned int 	_M_VertexBuffer;
