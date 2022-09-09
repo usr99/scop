@@ -4,7 +4,7 @@
 
 TARGET	= scop.out
 
-CFLAGS	= -Wall -Wextra --std=c++11 -g # -Werror
+CFLAGS	= -Wall -Wextra -Werror --std=c++11
 CC		= g++
 
 BREW_PATH = /Users/${USER}/.brew/opt/
