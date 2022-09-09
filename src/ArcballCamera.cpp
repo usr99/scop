@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 14:28:10 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/08 21:09:32 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 21:27:57 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ ArcballCamera::getMatrix() const
 ft::vec3
 ArcballCamera::getPosition() const
 {
-	return _M_Eye;
+	return _M_Eye / _M_Zoom;
 }
 
 void
