@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 10:45:16 by mamartin          #+#    #+#             */
-/*   Updated: 2022/09/08 20:10:40 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/09/08 23:01:15 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ Model::Model(const std::string& path) : _M_RotationAngle(0.f)
 		mean[i] = -(obj.max[i] + obj.min[i]) / 2;
 		biggest = std::max(std::max(std::abs(obj.max[i]), std::abs(obj.min[i])), biggest);
 	}
-	float scalingFactor = 2 / biggest;
+	float scalingFactor = 1 / biggest;
 	for (auto vertex = obj.vertices.begin(); vertex != obj.vertices.end(); vertex++)
 		*vertex = (*vertex + mean) * scalingFactor; // translate and scale the vertex coordinate to fit the range [-2;2]
 
@@ -119,7 +119,7 @@ Model::Model(const std::string& path) : _M_RotationAngle(0.f)
 				ft::vec3 smoothed;
 				for (auto index = vertex->second.begin(); index != vertex->second.end(); index++)
 					smoothed += obj.normals[**index - 1];
-				// smoothed = normalize(smoothed);
+				smoothed = normalize(smoothed);
 
 				/* Set this new normal vector for the vertex */
 				obj.normals.push_back(smoothed);
