@@ -2,30 +2,29 @@
 #			GLOBAL VARIABLES DEFINITION			 #
 ##################################################
 
-TARGET	= scop.out
+TARGET	= scop
 
-CFLAGS	= -Wall -Wextra --std=c++11 -g # -Werror
+CFLAGS	= -Wall -Wextra -Werror --std=c++11
 CC		= g++
 
-INC 	= -I ./include				\
-			-I ./libs/include		\
-			-I ./ftGraphics/include	\
+INC 	= -I ./include
 
 SRCDIR	= ./src/
 SRC		= scop.cpp Model.cpp ShaderProgram.cpp ArcballCamera.cpp LightSource.cpp ColorPalette.cpp debug.cpp \
-			parser.cpp Object.cpp Material.cpp BMPimage.cpp Skybox.cpp textures.cpp
-
+			parser.cpp Object.cpp Material.cpp BMPimage.cpp Skybox.cpp textures.cpp \
+			imgui.cpp imgui_demo.cpp imgui_draw.cpp imgui_tables.cpp imgui_widgets.cpp \
+			imgui_impl_opengl3.cpp imgui_impl_glfw.cpp 
 
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
 
-LIBS	= -L libs -lglfw3 -lGLEW -limgui -lGL -lpthread -ldl -lX11
+LIBS	= -lglfw -lGLEW -lGL
 
 ##################################################
 #				COMPILATION RULES				 #
 ##################################################
 
-${OBJDIR}%.o: ${SRCDIR}%.cpp ./include/%.hpp
+${OBJDIR}%.o: ${SRCDIR}%.cpp
 	${CC} ${CFLAGS} -c $< ${INC} -o $@
 
 ${TARGET}: ${OBJDIR} ${OBJS} ${LIBFT}
@@ -38,6 +37,10 @@ ${OBJDIR}:
 #  				   USUAL RULES					 #./
 ##################################################
 
+test:
+	@echo ${SRC}
+	@echo ${OBJS}
+
 all: ${TARGET}
 
 clean:
@@ -45,6 +48,7 @@ clean:
 
 fclean: clean
 	rm -rf ${TARGET}
+	rm -f imgui.ini
 
 re: fclean all
 

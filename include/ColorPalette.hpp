@@ -23,7 +23,7 @@ class ColorPalette
 
 		ColorPalette();
 
-		void reserve(size_t capacity);
+		void reserve(std::size_t capacity);
 		void push(float grey);
 		void update();
 		void showSettings();

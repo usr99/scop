@@ -13,7 +13,7 @@
 #include "ColorPalette.hpp"
 
 #include "GL/glew.h"
-#include "imgui/imgui.h"
+#include "imgui.h"
 #include "debug.hpp"
 
 ColorPalette::ColorPalette()

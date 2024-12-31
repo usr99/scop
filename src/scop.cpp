@@ -267,7 +267,9 @@ void showSettingsWindow(Settings& settings, Model& object, LightSource& light, A
 		ImGui::RadioButton("dots", &settings.primitive, GL_POINTS);
 		ImGui::BeginDisabled(settings.primitive != GL_POINTS);
 		if (ImGui::SliderInt("size", &settings.dotsize, 1, 10))
+		{
 			GLCall(glPointSize(settings.dotsize));
+		}
 		ImGui::EndDisabled();
 
 		ImGui::BeginDisabled(settings.current != MATERIAL);
