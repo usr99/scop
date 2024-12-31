@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "LightSource.hpp"
-#include "imgui.h"
+#include "imgui/imgui.h"
 
 LightSource::LightSource()
 	: _M_InitialPosition(ft::vec3({ 0.f, 3.f, -3.f })), _M_Angle(0.f) {}
