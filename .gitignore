@@ -1,14 +1,12 @@
 # Compiled Object files
-./objs
-
-ftGraphics/*.a
-ftGraphics/objs
+*.o
+*.a
 
 # Executables
 scop
-*.out
 
 # Other
 .vscode
 imgui.ini
 todo
+
